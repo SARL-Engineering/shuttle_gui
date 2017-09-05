@@ -17,11 +17,16 @@ class BoxHandler(QtCore.QThread):
 
         self.main_window = main_window
 
+        # Gui Object References
+        self.id_list_widget = self.main_window.id_list_widget  # type: QtWidgets.QListWidget
+
         self.thread_instances = []
         self.list_w = self.main_window.id_list_widget  # type: QtWidgets.QListWidget
         self.should_run = True
         self.start_all_boxes_manager = False
         self.__connect_signals_to_slots()
+
+        self.setup_gui_elements()
         self.start()
 
     def __connect_signals_to_slots(self):
@@ -47,15 +52,19 @@ class BoxHandler(QtCore.QThread):
             print("instance")
 
         self.start_all_threads.emit()
-        i = 1
+
+        temp = {}
         for box in self.thread_instances:
             while not box.box_id_found_flag:
                 pass
-            self.list_w.addItem(str(i))
-            i = i+1
+            self.list_w.addItem(str(box.box_id))
+            # i = i+1
 
         self.list_w.setCurrentRow(0)
         self.msleep(10)
+
+    def setup_gui_elements(self):
+        self.id_list_widget.setSortingEnabled(True)
 
     def on_list_item_changed(self):
         pass

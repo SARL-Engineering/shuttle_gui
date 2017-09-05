@@ -12,6 +12,11 @@ class ThreadOne(QtCore.QThread):
         self.main_window = main_window
         self.box_handler = box_handler
         self.comport_string = comport_string
+
+        # Gui Object References
+        self.id_list_widget = self.main_window.id_list_widget  # type: QtWidgets.QListWidget
+
+        #
         self.in_buffer = ""
         self.should_run = True
         self.button_one_flag = False
@@ -143,10 +148,9 @@ class ThreadOne(QtCore.QThread):
         self.msleep(50)
 
     def on_current_box_id_changed_slot(self, row_id):
-        list_box_id = row_id + 1
+        list_box_id = int(self.id_list_widget.currentItem().text())
+        # list_box_id = row_id + 1
         if list_box_id == self.box_id:
-            print(list_box_id)
-
             layout = self.tab_widget_w.layout()  # type: QtWidgets.QLayout
 
             for i in reversed(range(layout.count())):
@@ -157,6 +161,7 @@ class ThreadOne(QtCore.QThread):
                 widgetToRemove.setParent(None)
 
             layout.addWidget(self.make_box_tab_widget(self.tab_widget_w))
+            self.id_list_widget.sortItems()
 
     def on_stop_all_threads_slot(self):
         self.should_run = False

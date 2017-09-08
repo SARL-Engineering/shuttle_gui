@@ -1,13 +1,14 @@
 from PyQt5 import QtCore, QtWidgets
 import serial
 from Framework.BoxHandlerCore import BoxHandler
+import settings
 
 
-class ThreadOne(QtCore.QThread):
+class SerialThread(QtCore.QThread):
     change_label_signal = QtCore.pyqtSignal(str)
 
     def __init__(self, main_window, box_handler, comport_string):
-        super(ThreadOne, self).__init__()
+        super(SerialThread, self).__init__()
 
         self.main_window = main_window
         self.box_handler = box_handler
@@ -15,7 +16,6 @@ class ThreadOne(QtCore.QThread):
 
         # Gui Object References
         self.id_list_widget = self.main_window.id_list_widget  # type: QtWidgets.QListWidget
-
         #
         self.in_buffer = ""
         self.should_run = True
@@ -23,6 +23,7 @@ class ThreadOne(QtCore.QThread):
         self.button_two_flag = False
         self.button_three_flag = False
         self.button_four_flag = False
+        self.settings_flag = False
         self.arduino = serial.Serial(comport_string, 9600, bytesize=8, stopbits=1, timeout=None)
 
         self.box_id_found_flag = False
@@ -64,6 +65,10 @@ class ThreadOne(QtCore.QThread):
                 print("Abort pushed")
                 self.button_four_flag = False
                 self.msleep(50)
+            if self.settings_flag:
+                self.settings_flag = False
+                #ShuttleSettings(self.main_window, self, self.box_id)
+
             else:
                 if self.arduino.inWaiting():
                     in_byte = self.arduino.read().decode("utf-8")
@@ -120,6 +125,9 @@ class ThreadOne(QtCore.QThread):
         ##Settings tab
         settings_tab_widget = QtWidgets.QWidget()
         self.box_tab_widget.addTab(settings_tab_widget, "Settings")
+        layout = settings.Settings.setup_gui_settings()
+        settings_tab_widget.setLayout(layout)
+
         ##Lights tab
         lights_tab_widget = QtWidgets.QWidget()
         self.box_tab_widget.addTab(lights_tab_widget, "Lights")
@@ -146,6 +154,9 @@ class ThreadOne(QtCore.QThread):
         self.send_to_box(",")
         self.send_to_box("252")
         self.msleep(50)
+
+    def on_settings_clicked_slot(self):
+        self.settings_flag = True
 
     def on_current_box_id_changed_slot(self, row_id):
         list_box_id = int(self.id_list_widget.currentItem().text())

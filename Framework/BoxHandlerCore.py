@@ -48,17 +48,15 @@ class BoxHandler(QtCore.QThread):
         for port in ports:
             if port == "COM1" or port == "COM3":
                 continue
-            self.thread_instances.append(serialHandler.ThreadOne(self.main_window, self, port))
+            self.thread_instances.append(serialHandler.SerialThread(self.main_window, self, port))
             print("instance")
 
         self.start_all_threads.emit()
 
-        temp = {}
         for box in self.thread_instances:
             while not box.box_id_found_flag:
                 pass
             self.list_w.addItem(str(box.box_id))
-            # i = i+1
 
         self.list_w.setCurrentRow(0)
         self.msleep(10)

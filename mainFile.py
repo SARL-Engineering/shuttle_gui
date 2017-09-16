@@ -5,6 +5,7 @@ import serial
 from serial.tools.list_ports import comports
 import serialHandler
 from Framework.BoxHandlerCore import BoxHandler
+from settings import ShuttleSettings
 
 UI_FILE_PATH = "arduinoform_corwin.ui"
 
@@ -16,6 +17,7 @@ class NewWindow(QtWidgets.QMainWindow):
         super(NewWindow, self).__init__(parent)
         uic.loadUi(UI_FILE_PATH, self)
 
+        self.settings_class = ShuttleSettings(self)
         self.box_handler_class = BoxHandler(self)
 
     def closeEvent(self, event):

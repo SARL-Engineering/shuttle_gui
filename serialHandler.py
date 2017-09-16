@@ -1,7 +1,6 @@
 from PyQt5 import QtCore, QtWidgets
 import serial
 from Framework.BoxHandlerCore import BoxHandler
-import settings
 
 
 class SerialThread(QtCore.QThread):
@@ -33,6 +32,7 @@ class SerialThread(QtCore.QThread):
         self.show_box_tab_widget_flag = False
         self.tab_widget_w = self.main_window.tab_widget_widget
         self.__connect_signals_to_slots()
+        self.settings = QtCore.QSettings()
         self.start()
 
     def __connect_signals_to_slots(self):
@@ -125,8 +125,14 @@ class SerialThread(QtCore.QThread):
         ##Settings tab
         settings_tab_widget = QtWidgets.QWidget()
         self.box_tab_widget.addTab(settings_tab_widget, "Settings")
-        layout = settings.Settings.setup_gui_settings()
-        settings_tab_widget.setLayout(layout)
+        n_of_trials_box = QtWidgets.QSpinBox()
+        n_of_trials_box.setRange(0, 255)
+        settings_layout = QtWidgets.QFormLayout()
+        settings_layout.addRow("Number of Trials", n_of_trials_box)
+        #add setting here
+        n_of_trials_box.setValue(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"), int))
+        settings_tab_widget.setLayout(settings_layout)
+
 
         ##Lights tab
         lights_tab_widget = QtWidgets.QWidget()

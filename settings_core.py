@@ -26,7 +26,7 @@ class ShuttleSettings(QtCore.QObject):
         self.settings.setValue("boxes/test", 20)
         print("settings init")
         print("test", self.settings.value("boxes/test"))
-        self.settings.clear()
+        #self.settings.clear()
         self.boxes_configs_array.append("0 spot")
         for box in range(1, 48):
             self.settings.setValue(("control_number/box_id_" + str(box)), self.settings.value((

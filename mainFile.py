@@ -5,7 +5,7 @@ import serial
 from serial.tools.list_ports import comports
 import serialHandler
 from Framework.BoxHandlerCore import BoxHandler
-from settings import ShuttleSettings
+from settings_core import ShuttleSettings
 
 UI_FILE_PATH = "arduinoform_corwin.ui"
 

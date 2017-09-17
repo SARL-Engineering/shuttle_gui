@@ -19,3 +19,4 @@ class box_results():
 
     def change_box_id(self):
         self.box_id = 10
+

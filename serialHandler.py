@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtWidgets
 import serial
 from Framework.BoxHandlerCore import BoxHandler
+from settings_core import ShuttleSettings
 
 
 class SerialThread(QtCore.QThread):
@@ -33,6 +34,7 @@ class SerialThread(QtCore.QThread):
         self.tab_widget_w = self.main_window.tab_widget_widget
         self.__connect_signals_to_slots()
         self.settings = QtCore.QSettings()
+        self.settings_core = ShuttleSettings(main_window)
         self.start()
 
     def __connect_signals_to_slots(self):
@@ -46,51 +48,28 @@ class SerialThread(QtCore.QThread):
 
         while self.should_run:
 
-            if self.button_one_flag:
-                self.send_to_box(self.box_id)
-                self.send_to_box(",")
-                self.send_to_box("251")
-                print("Start pushed")
-                self.button_one_flag = False
-                self.msleep(50)
-            if self.button_two_flag:
-                BoxHandler.start_all_boxes_manager = True
-                BoxHandler.starter(self.box_handler)
-                print("Start signal pushed")
-                self.button_two_flag = False
-            if self.button_four_flag:
-                self.send_to_box(self.box_id)
-                self.send_to_box(",")
-                self.send_to_box("253")
-                print("Abort pushed")
-                self.button_four_flag = False
-                self.msleep(50)
-            if self.settings_flag:
-                self.settings_flag = False
-                #ShuttleSettings(self.main_window, self, self.box_id)
+            if self.arduino.inWaiting():
+                in_byte = self.arduino.read().decode("utf-8")
+                self.in_buffer += in_byte
 
-            else:
-                if self.arduino.inWaiting():
-                    in_byte = self.arduino.read().decode("utf-8")
-                    self.in_buffer += in_byte
+                if in_byte == "\n":
+                    if "Box ID: " in self.in_buffer:
+                        self.box_id_found_flag = True
+                        self.box_id = int(self.in_buffer.split(": ")[1])
+                        print("Box ID: ", self.box_id)
 
-                    if in_byte == "\n":
-                        if "Box ID: " in self.in_buffer:
-                            self.box_id_found_flag = True
-                            self.box_id = int(self.in_buffer.split(": ")[1])
-                            print("Box ID: ", self.box_id)
+                    print(self.in_buffer)
+                    self.in_buffer = ""
+                if self.in_buffer == "x":
+                    print("sending configs")
+                    self.send_to_box(self.settings_core.send_box_configs(self.box_id))
+                    #self.send_to_box("50,1,600,24,12,12,16,8,95,20,500,50,5")
+                    self.send_to_box("4,8,100,150,255,0,255,0,50,75,255,0,255,0,200,225,255,0,255,200,0,1")
+                    self.send_to_box("7,3,200,15,12,255,10,255,50,75,0,255,0,255,200,225,0,255,255,200,1,0")
+                    self.send_to_box("7,3,200,15,12,255,10,255,50,75,0,255,0,255,200,225,0,255,255,200,1,0")
+                    self.in_buffer = ""
 
-                        print(self.in_buffer)
-                        self.in_buffer = ""
-                    if self.in_buffer == "x":
-                        print("this works")
-                        self.send_to_box("50,1,600,24,12,12,16,8,95,20,500,50,5")
-                        self.send_to_box("4,8,100,150,255,0,255,0,50,75,255,0,255,0,200,225,255,0,255,200,0,1")
-                        self.send_to_box("7,3,200,15,12,255,10,255,50,75,0,255,0,255,200,225,0,255,255,200,1,0")
-                        self.send_to_box("7,3,200,15,12,255,10,255,50,75,0,255,0,255,200,225,0,255,255,200,1,0")
-                        self.in_buffer = ""
-
-                self.msleep(50)
+            self.msleep(50)
 
     def send_to_box(self, message):
         self.arduino.write(bytes(str(message), "utf-8"))
@@ -100,7 +79,43 @@ class SerialThread(QtCore.QThread):
         ##Status tab
         status_tab_widget = QtWidgets.QWidget()
         self.box_tab_widget.addTab(status_tab_widget, str(self.box_id))
-        ##Control tab
+        #get status from arduino here.....
+        #control tab
+        self.make_control_tab()
+
+        ##Settings tab
+        settings_tab_widget = QtWidgets.QWidget()
+        self.box_tab_widget.addTab(settings_tab_widget, "Settings")
+        n_of_trials_box = QtWidgets.QSpinBox()
+        n_of_trials_box.setRange(0, 255)
+        settings_layout = QtWidgets.QFormLayout()
+        settings_layout.addRow("Number of Trials", n_of_trials_box)
+        #add setting here
+        n_of_trials_box.setValue(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"), int))
+        settings_tab_widget.setLayout(settings_layout)
+
+
+        ##Lights tab
+        lights_tab_widget = QtWidgets.QWidget()
+        self.box_tab_widget.addTab(lights_tab_widget, "Lights")
+
+        return self.box_tab_widget
+
+    def make_settings_tab(self):
+        settings_tab_widget = QtWidgets.QWidget()
+        self.box_tab_widget.addTab(settings_tab_widget, "Settings")
+        #make the boxes
+        n_of_trials_box = QtWidgets.QSpinBox()
+        #set the ranges
+        n_of_trials_box.setRange(0, 255)
+        #add the elements to the layout
+        settings_layout = QtWidgets.QFormLayout()
+        settings_layout.addRow("Number of Trials", n_of_trials_box)
+        #retrive the settings
+        n_of_trials_box.setValue(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"), int))
+        settings_tab_widget.setLayout(settings_layout)
+
+    def make_control_tab(self):
         ##Setting the layout
         control_tab_widget = QtWidgets.QWidget()
         self.box_tab_widget.addTab(control_tab_widget, "Control")
@@ -122,38 +137,31 @@ class SerialThread(QtCore.QThread):
         control_start_all_button.clicked.connect(self.button_two_slot)
         control_start_group_button.clicked.connect(self.button_three_slot)
         control_abort_button.clicked.connect(self.button_four_slot)
-        ##Settings tab
-        settings_tab_widget = QtWidgets.QWidget()
-        self.box_tab_widget.addTab(settings_tab_widget, "Settings")
-        n_of_trials_box = QtWidgets.QSpinBox()
-        n_of_trials_box.setRange(0, 255)
-        settings_layout = QtWidgets.QFormLayout()
-        settings_layout.addRow("Number of Trials", n_of_trials_box)
-        #add setting here
-        n_of_trials_box.setValue(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"), int))
-        settings_tab_widget.setLayout(settings_layout)
-
-
-        ##Lights tab
-        lights_tab_widget = QtWidgets.QWidget()
-        self.box_tab_widget.addTab(lights_tab_widget, "Lights")
-
-        return self.box_tab_widget
 
     def start_all_boxes_slot(self):
         self.start_all_boxes_signal.emit()
 
     def button_one_slot(self):
-        self.button_one_flag = True
+        self.send_to_box(self.box_id)
+        self.send_to_box(",")
+        self.send_to_box("251")
+        print("Start pushed")
+        self.msleep(50)
 
     def button_two_slot(self):
-        self.button_two_flag = True
+        BoxHandler.start_all_boxes_manager = True
+        BoxHandler.starter(self.box_handler)
+        print("Start all signal pushed")
 
     def button_three_slot(self):
-        self.button_three_flag = True
+        print("button three" + str(self.box_id))
 
     def button_four_slot(self):
-        self.button_four_flag = True
+        self.send_to_box(self.box_id)
+        self.send_to_box(",")
+        self.send_to_box("253")
+        print("Abort pushed")
+        self.msleep(50)
 
     def on_start_all_boxes(self):
         self.send_to_box(self.box_id)

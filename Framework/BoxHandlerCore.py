@@ -49,7 +49,6 @@ class BoxHandler(QtCore.QThread):
             if port == "COM1" or port == "COM3":
                 continue
             self.thread_instances.append(serialHandler.SerialThread(self.main_window, self, port))
-            print("instance")
 
         self.start_all_threads.emit()
 

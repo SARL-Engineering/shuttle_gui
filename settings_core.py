@@ -22,7 +22,7 @@ class ShuttleSettings(QtCore.QObject):
         self.boxes_start_lights_array = []
         #############run#########################################
         self.settings.setFallbacksEnabled(False)
-        self.settings.clear()
+        #self.settings.clear()
         self.load_settings()
         self.load_settle_lights()
         self.load_trial_lights()
@@ -97,13 +97,13 @@ class ShuttleSettings(QtCore.QObject):
                 "lights/settle_lights/box_id_" + str(box) + "left_pattern"), 8))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_color"),
                                    self.settings.value(("lights/settle_lights/box_id_" + str(box) + "right_side_color"),
-                                                       100))
+                                                       173))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_color"),
                                    self.settings.value(("lights/settle_lights/box_id_" + str(box) + "left_side_color"),
-                                                       100))
+                                                       120))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_bright"),
                                    self.settings.value(("lights/settle_lights/box_id_" + str(box) + "right_side_bright")
-                                                       , 100))
+                                                       , 255))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_bright"),
                                    self.settings.value(("lights/settle_lights/box_id_" + str(box) + "left_side_bright"),
                                                        100))
@@ -136,10 +136,12 @@ class ShuttleSettings(QtCore.QObject):
                                                                        "right_pattern"), 4),
                                                   self.settings.value(("lights/settle_lights/box_id_" + str(box) +
                                                                        "left_pattern"), 7),
-                                                  self.settings.value(("lights/settle_lights/box_id_" + str(box) +
-                                                                       "right_side_color"), 100),
-                                                  self.settings.value(("lights/settle_lights/box_id_" + str(box) +
-                                                                       "left_side_color"), 100),
+                                                  self.scaling(self.settings.value(("lights/settle_lights/box_id_" +
+                                                                                    str(box) + "right_side_color"), 100)
+                                                               , 0, 360, 0, 255),
+                                                  self.scaling(self.settings.value(("lights/settle_lights/box_id_" +
+                                                                                    str(box) + "left_side_color"), 100)
+                                                               , 0, 360, 0, 255),
                                                   self.settings.value(("lights/settle_lights/box_id_" + str(box) +
                                                                        "right_side_bright"), 100),
                                                   self.settings.value(("lights/settle_lights/box_id_" + str(box) +
@@ -148,10 +150,12 @@ class ShuttleSettings(QtCore.QObject):
                                                                        "right_side_sat"), 100),
                                                   self.settings.value(("lights/settle_lights/box_id_" + str(box) +
                                                                        "left_side_sat"), 100),
-                                                  self.settings.value(("lights/settle_lights/box_id_" + str(box) +
-                                                                       "right_back_color"), 200),
-                                                  self.settings.value(("lights/settle_lights/box_id_" + str(box) +
-                                                                       "left_back_color"), 200),
+                                                  self.scaling(self.settings.value(("lights/settle_lights/box_id_" +
+                                                                                    str(box) + "right_back_color"), 100)
+                                                               , 0, 360, 0, 255),
+                                                  self.scaling(self.settings.value(("lights/settle_lights/box_id_" +
+                                                                                    str(box) + "left_back_color"), 100)
+                                                               , 0, 360, 0, 255),
                                                   self.settings.value(("lights/settle_lights/box_id_" + str(box) +
                                                                        "right_back_bright"), 200),
                                                   self.settings.value(("lights/settle_lights/box_id_" + str(box) +
@@ -215,10 +219,12 @@ class ShuttleSettings(QtCore.QObject):
                                                                      "right_pattern"), 4),
                                                  self.settings.value(("lights/trial_lights/box_id_" + str(box) +
                                                                       "left_pattern"), 4),
-                                                 self.settings.value(("lights/trial_lights/box_id_" + str(box) +
-                                                                      "right_side_color"), 100),
-                                                 self.settings.value(("lights/trial_lights/box_id_" + str(box) +
-                                                                      "left_side_color"), 100),
+                                                 self.scaling(self.settings.value(("lights/trial_lights/box_id_" +
+                                                                                   str(box) + "right_side_color"), 100)
+                                                              , 0, 360, 0, 255),
+                                                 self.scaling(self.settings.value(("lights/trial_lights/box_id_" +
+                                                                                   str(box) + "left_side_color"), 100)
+                                                              , 0, 360, 0, 255),
                                                  self.settings.value(("lights/trial_lights/box_id_" + str(box) +
                                                                       "right_side_bright"), 100),
                                                  self.settings.value(("lights/trial_lights/box_id_" + str(box) +
@@ -227,10 +233,12 @@ class ShuttleSettings(QtCore.QObject):
                                                                       "right_side_sat"), 100),
                                                  self.settings.value(("lights/trial_lights/box_id_" + str(box) +
                                                                       "left_side_sat"), 100),
-                                                 self.settings.value(("lights/trial_lights/box_id_" + str(box) +
-                                                                      "right_back_color"), 200),
-                                                 self.settings.value(("lights/trial_lights/box_id_" + str(box) +
-                                                                      "left_back_color"), 200),
+                                                 self.scaling(self.settings.value(("lights/trial_lights/box_id_" +
+                                                                                   str(box) + "right_back_color"), 100)
+                                                              , 0, 360, 0, 255),
+                                                 self.scaling(self.settings.value(("lights/trial_lights/box_id_" +
+                                                                                   str(box) + "left_back_color"), 100)
+                                                              , 0, 360, 0, 255),
                                                  self.settings.value(("lights/trial_lights/box_id_" + str(box) +
                                                                       "right_back_bright"), 200),
                                                  self.settings.value(("lights/trial_lights/box_id_" + str(box) +
@@ -293,10 +301,12 @@ class ShuttleSettings(QtCore.QObject):
                                                                       "right_pattern"), 4),
                                                  self.settings.value(("lights/start_lights/box_id_" + str(box) +
                                                                       "left_pattern"), 4),
-                                                 self.settings.value(("lights/start_lights/box_id_" + str(box) +
-                                                                     "right_side_color"), 100),
-                                                 self.settings.value(("lights/start_lights/box_id_" + str(box) +
-                                                                     "left_side_color"), 100),
+                                                 self.scaling(self.settings.value(("lights/start_lights/box_id_" +
+                                                                                   str(box) + "right_side_color"), 100),
+                                                              0, 360, 0, 255),
+                                                 self.scaling(self.settings.value(("lights/start_lights/box_id_" +
+                                                                                   str(box) + "left_side_color"), 100),
+                                                              0, 360, 0, 255),
                                                  self.settings.value(("lights/start_lights/box_id_" + str(box) +
                                                                      "right_side_bright"), 100),
                                                  self.settings.value(("lights/start_lights/box_id_" + str(box) +
@@ -305,10 +315,12 @@ class ShuttleSettings(QtCore.QObject):
                                                                      "right_side_sat"), 100),
                                                  self.settings.value(("lights/start_lights/box_id_" + str(box) +
                                                                      "left_side_sat"), 100),
-                                                 self.settings.value(("lights/start_lights/box_id_" + str(box) +
-                                                                     "right_back_color"), 200),
-                                                 self.settings.value(("lights/start_lights/box_id_" + str(box) +
-                                                                     "left_back_color"), 200),
+                                                 self.scaling(self.settings.value(("lights/start_lights/box_id_" +
+                                                                                   str(box) + "right_back_color"), 100),
+                                                              0, 360, 0, 255),
+                                                 self.scaling(self.settings.value(("lights/start_lights/box_id_" +
+                                                                                   str(box) + "left_back_color"), 100),
+                                                              0, 360, 0, 255),
                                                  self.settings.value(("lights/start_lights/box_id_" + str(box) +
                                                                      "right_back_bright"), 200),
                                                  self.settings.value(("lights/start_lights/box_id_" + str(box) +
@@ -323,3 +335,6 @@ class ShuttleSettings(QtCore.QObject):
     def send_start_lights(self, box_id):
         return self.boxes_start_lights_array[box_id]
 
+    def scaling(self, Input, InputLow, InputHigh, OutputLow, OutputHigh):
+        Result = int(((Input - InputLow) / (InputHigh - InputLow)) * (OutputHigh - OutputLow) + OutputLow)
+        return Result

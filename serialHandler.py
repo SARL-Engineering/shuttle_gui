@@ -1,4 +1,4 @@
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 import serial
 from Framework.BoxHandlerCore import BoxHandler
 from settings_core import ShuttleSettings
@@ -23,9 +23,10 @@ class SerialThread(QtCore.QThread):
         self.current_state_label = None
         self.current_state_strings = ["Wait for Start", "Test Start", "Settle Period", "Inter Trial", "Trial Start",
                                       "Trial Seek", "Trial Shock", "Trial End", "Abort", "Test End"]
+        self.pattern_list = ["Heart", "Big X", "Big O", "Horizontal Lines", "Vertical Lines", "Diagonal Lines",
+                             "Big Line", "Small Box", "Corners"]
         self.settings_flag = False
         self.arduino = serial.Serial(comport_string, 9600, bytesize=8, stopbits=1, timeout=None)
-
         self.box_id_found_flag = False
         self.box_id = None
         self.box_tab_widget = None  # type: QtWidgets.QTabWidget
@@ -85,9 +86,63 @@ class SerialThread(QtCore.QThread):
         self.make_lights_tab()
         return self.box_tab_widget
 
+####################################LIGHTING GUI###########################################################
     def make_lights_tab(self):
         lights_tab_widget = QtWidgets.QWidget()
         self.box_tab_widget.addTab(lights_tab_widget, "Lights")
+        lights_tab_layout = QtWidgets.QFormLayout()
+        ####make the buttons#####
+        self.settle_lights_r_pattern_button = QtWidgets.QComboBox()
+        self.settle_lights_r_pattern_button.insertItems(0, self.pattern_list)
+        self.settle_lights_r_pattern_button.setCurrentIndex(self.settings.value("lights/settle_lights/box_id_" +
+                                                                                str(self.box_id) + "right_pattern", int)
+                                                            )
+        self.settle_lights_l_pattern_button = QtWidgets.QComboBox()
+        self.settle_lights_l_pattern_button.insertItems(0, self.pattern_list)
+        self.settle_lights_l_pattern_button.setCurrentIndex(self.settings.value("lights/settle_lights/box_id_" +
+                                                                                str(self.box_id) + "left_pattern", int))
+        self.settle_lights_r_button = QtWidgets.QPushButton()
+        ####make the custom colors from the saved settings#####
+        settle_lights_r_color = QtGui.QColor()
+        settle_lights_r_color.setHsv(self.settings.value("lights/settle_lights/box_id_" + str(self.box_id) +
+                                                         "right_side_color", int),
+                                     self.settings.value(("lights/settle_lights/box_id_" + str(self.box_id) +
+                                                          "right_side_sat"), int), self.settings.value((
+                                                            "lights/settle_lights/box_id_" + str(self.box_id) +
+                                                            "right_side_bright"), int))
+
+        ######add the buttons to the layout#######
+        lights_tab_layout.addRow("Right Side Settle Pattern", self.settle_lights_r_pattern_button)
+        lights_tab_layout.addRow("Right Side Settle Lights Color", self.settle_lights_r_button)
+        lights_tab_layout.addRow("Left Side Settle Pattern", self.settle_lights_l_pattern_button)
+
+        #############style#################
+        self.settle_lights_r_button.setStyleSheet("QWidget { background-color: %s}" % settle_lights_r_color.name())
+
+        ######connect the slots########
+        self.settle_lights_r_button.clicked.connect(lambda: self.color_select_slot("settle_lights", "right_side_color",
+                                                                                   "right_side_sat", "right_side_bright"
+                                                                                   ))
+        self.settle_lights_r_pattern_button.currentIndexChanged.connect(lambda: self.pattern_select_slot(
+            "settle_lights", "right_pattern", self.settle_lights_r_pattern_button.currentIndex()))
+        self.settle_lights_l_pattern_button.currentIndexChanged.connect(lambda: self.pattern_select_slot(
+            "settle_lights", "left_pattern", self.settle_lights_l_pattern_button.currentIndex()))
+        #######set the layout in the tab##########
+        lights_tab_widget.setLayout(lights_tab_layout)
+
+    def color_select_slot(self, lights, hue, sat, val):
+        temp_colorbox = QtWidgets.QColorDialog()
+        temp_color = temp_colorbox.getColor()
+        self.settle_lights_r_button.setStyleSheet("QWidget { background-color: %s}" % temp_color.name())
+        temp = temp_color.getHsv()
+        self.settings.setValue(("lights/" + lights + "/box_id_" + str(self.box_id) + hue + ""), int(temp[0]))
+        self.settings.setValue(("lights/" + lights + "/box_id_" + str(self.box_id) + sat + ""), int(temp[1]))
+        self.settings.setValue(("lights/" + lights + "/box_id_" + str(self.box_id) + val + ""), int(temp[2]))
+
+    def pattern_select_slot(self, lights, pat, button):
+        print(lights, pat)
+        self.settings.setValue(("lights/" + lights + "/box_id_" + str(self.box_id) + pat + ""),
+                               button)
 
 ###############SETTINGS GUI #####################################################################
 
@@ -256,6 +311,7 @@ class SerialThread(QtCore.QThread):
         control_start_group_button.clicked.connect(self.button_three_slot)
         control_abort_button.clicked.connect(self.button_four_slot)
 
+###############################control functions################################################
     def control_id_slot(self):
         self.settings.setValue(("control_number/box_id_" + str(self.box_id)), self.control_id_box.toPlainText())
 
@@ -267,11 +323,14 @@ class SerialThread(QtCore.QThread):
         self.start_all_boxes_signal.emit()
 
     def button_one_slot(self):
-        self.send_to_box(self.box_id)
-        self.send_to_box(",")
-        self.send_to_box("250")
-        print("Start pushed")
-        self.msleep(50)
+        if self.control_id_box.toPlainText() == "ENTER CONTROL":
+            print("Need control ID popup for " + str(self.box_id))
+        else:
+            self.send_to_box(self.box_id)
+            self.send_to_box(",")
+            self.send_to_box("250")
+            print("Start pushed")
+            self.msleep(50)
 
     def button_two_slot(self):
         BoxHandler.start_all_boxes_manager = True
@@ -317,3 +376,7 @@ class SerialThread(QtCore.QThread):
 
     def on_stop_all_threads_slot(self):
         self.should_run = False
+
+    def scaling(self, Input, InputLow, InputHigh, OutputLow, OutputHigh):
+        Result = int(((Input - InputLow) / (InputHigh - InputLow)) * (OutputHigh - OutputLow) + OutputLow)
+        return Result

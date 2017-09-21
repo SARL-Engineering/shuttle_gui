@@ -25,6 +25,8 @@ class SerialThread(QtCore.QThread):
                                       "Trial Seek", "Trial Shock", "Trial End", "Abort", "Test End"]
         self.pattern_list = ["Heart", "Big X", "Big O", "Horizontal Lines", "Vertical Lines", "Diagonal Lines",
                              "Big Line", "Small Box", "Corners"]
+        self.results_flag = 0
+        self.results = []
         self.current_tab = 0
         self.tab_flag = 0
         self.update_flag = None
@@ -66,9 +68,11 @@ class SerialThread(QtCore.QThread):
                             self.current_state = int(self.in_buffer.split(": ")[1])
                             print("STATE = " + str(self.current_state))
                             self.update_status_label(int(self.current_state))
+                        if "z! " in self.in_buffer:
+                            self.results = self.in_buffer.split(", ")
+                            self.results_flag = 1;
                         if "x: " in self.in_buffer:
                             print("sending configs to box " + str(self.box_id))
-                            self.settings_core.update_settings(self.box_id)
                             self.send_to_box(self.settings_core.send_box_configs(self.box_id))
                             self.send_to_box(self.settings_core.send_settle_lights(self.box_id))
                             self.send_to_box(self.settings_core.send_trial_lights(self.box_id))
@@ -284,6 +288,7 @@ class SerialThread(QtCore.QThread):
         msg.setText("Please wait, updating settings (press OK now).....")
         self.box_tab_widget.setHidden(True)
         self.update_flag = 0
+        self.settings_core.update_settings(self.box_id)
         self.send_to_box(self.box_id)
         self.send_to_box(",")
         self.send_to_box("249")
@@ -561,6 +566,7 @@ class SerialThread(QtCore.QThread):
         control_start_all_button = QtWidgets.QPushButton("Start All")
         control_start_group_button = QtWidgets.QPushButton("Save Settings")
         control_abort_button = QtWidgets.QPushButton("Abort")
+        control_results_button = QtWidgets.QPushButton("Get Results")
         ##Adding the buttons to the layout
         control_form_layout.addRow("Current Status: ", self.current_state_show)
         control_form_layout.addRow("Control ID", self.control_id_box)
@@ -568,14 +574,28 @@ class SerialThread(QtCore.QThread):
         control_form_layout.addRow("Start All", control_start_all_button)
         control_form_layout.addRow("Save Settings", control_start_group_button)
         control_form_layout.addRow("Abort", control_abort_button)
+        control_form_layout.addRow("Display Results", control_results_button)
         ##slots
         self.control_id_box.textChanged.connect(self.control_id_slot)
         control_start_button.clicked.connect(self.button_one_slot)
         control_start_all_button.clicked.connect(self.button_two_slot)
         control_start_group_button.clicked.connect(self.update_settings_slot)
         control_abort_button.clicked.connect(self.button_four_slot)
+        control_results_button.clicked.connect(self.results_slot)
 
 ###############################control functions################################################
+    def results_slot(self):
+        self.send_to_box(self.box_id)
+        self.send_to_box(",")
+        self.send_to_box("248")
+        while self.results_flag == 0:
+            pass
+        msg = QtWidgets.QMessageBox()
+        msg.setText("Results: " + str(self.results))
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.exec()
+        self.results_flag = 0
+
     def control_id_slot(self):
         self.settings.setValue(("control_number/box_id_" + str(self.box_id)), self.control_id_box.toPlainText())
 

@@ -68,9 +68,14 @@ class SerialThread(QtCore.QThread):
                             self.current_state = int(self.in_buffer.split(": ")[1])
                             print("STATE = " + str(self.current_state))
                             self.update_status_label(int(self.current_state))
-                        if "z! " in self.in_buffer:
+                        if "z, " in self.in_buffer:
                             self.results = self.in_buffer.split(", ")
-                            self.results_flag = 1;
+                            print(self.results)
+                            self.results.pop()
+                            self.results.pop(0)
+                            self.results.pop(0)
+                            print(self.results)
+                            self.results_flag = 1
                         if "x: " in self.in_buffer:
                             print("sending configs to box " + str(self.box_id))
                             self.send_to_box(self.settings_core.send_box_configs(self.box_id))
@@ -125,6 +130,9 @@ class SerialThread(QtCore.QThread):
             self.settings_core.restore_all_defaults()
             self.update_settings_slot()
             self.get_conf_settings()
+            self.get_settle_lights_settings()
+            self.get_trial_lights_settings()
+            self.get_start_lights_settings()
 
     def restore_def_slot(self):
         msgBox = QtWidgets.QMessageBox()
@@ -137,6 +145,9 @@ class SerialThread(QtCore.QThread):
             self.settings_core.restore_box_defaults(self.box_id)
             self.update_settings_slot()
             self.get_conf_settings()
+            self.get_settle_lights_settings()
+            self.get_trial_lights_settings()
+            self.get_start_lights_settings()
 
     ###############SETTINGS GUI #####################################################################
 
@@ -311,41 +322,14 @@ class SerialThread(QtCore.QThread):
         ####make the buttons#####
         self.settle_lights_r_pattern_button = QtWidgets.QComboBox()
         self.settle_lights_r_pattern_button.insertItems(0, self.pattern_list)
-        self.settle_lights_r_pattern_button.setCurrentIndex(self.settings.value("lights/settle_lights/box_id_" +
-                                                                                str(self.box_id) + "right_pattern", int)
-                                                            )
         self.settle_lights_l_pattern_button = QtWidgets.QComboBox()
         self.settle_lights_l_pattern_button.insertItems(0, self.pattern_list)
-        self.settle_lights_l_pattern_button.setCurrentIndex(self.settings.value("lights/settle_lights/box_id_" +
-                                                                                str(self.box_id) + "left_pattern", int))
         self.settle_lights_r_button = QtWidgets.QPushButton()
         self.settle_lights_l_button = QtWidgets.QPushButton()
         self.settle_lights_rb_button = QtWidgets.QPushButton()
         self.settle_lights_lb_button = QtWidgets.QPushButton()
-        ####make the custom colors from the saved settings#####
-        settle_lights_r_color = QtGui.QColor()
-        settle_lights_l_color = QtGui.QColor()
-        settle_lights_rb_color = QtGui.QColor()
-        settle_lights_lb_color = QtGui.QColor()
-        settle_lights_r_color.setHsv(self.settings.value("lights/settle_lights/box_id_" + str(self.box_id) +
-                                                         "right_side_color", int),
-                                     self.settings.value(("lights/settle_lights/box_id_" + str(self.box_id) +
-                                                          "right_side_sat"), int), self.settings.value((
-                                                            "lights/settle_lights/box_id_" + str(self.box_id) +
-                                                            "right_side_bright"), int))
-        settle_lights_rb_color.setHsv(self.settings.value("lights/settle_lights/box_id_" + str(self.box_id) +
-                                                          "right_back_color", int), self.settings.value(
-            ("lights/settle_lights/box_id_" + str(self.box_id) + "right_back_sat"), int), self.settings.value(
-                ("lights/settle_lights/box_id_" + str(self.box_id) + "right_back_bright"), int))
-        settle_lights_l_color.setHsv(self.settings.value("lights/settle_lights/box_id_" + str(self.box_id) +
-                                                         "left_side_color", int),
-                                     self.settings.value(("lights/settle_lights/box_id_" + str(self.box_id) +
-                                                          "left_side_sat"), int), self.settings.value(
-                ("lights/settle_lights/box_id_" + str(self.box_id) + "left_side_bright"), int))
-        settle_lights_lb_color.setHsv(self.settings.value("lights/settle_lights/box_id_" + str(self.box_id) +
-                                                          "left_back_color", int), self.settings.value(
-            ("lights/settle_lights/box_id_" + str(self.box_id) + "left_back_sat"), int), self.settings.value(
-                ("lights/settle_lights/box_id_" + str(self.box_id) + "left_back_bright"), int))
+
+        self.get_settle_lights_settings()
 
         ######add the buttons to the layout#######
         lights_tab_layout.addRow("Right Side Settle Pattern", self.settle_lights_r_pattern_button)
@@ -354,13 +338,6 @@ class SerialThread(QtCore.QThread):
         lights_tab_layout.addRow("Left Side Settle Pattern", self.settle_lights_l_pattern_button)
         lights_tab_layout.addRow("Left Side Settle Lights Color", self.settle_lights_l_button)
         lights_tab_layout.addRow("Left Side Settle Lights Background Color", self.settle_lights_lb_button)
-
-
-        #############style#################
-        self.settle_lights_r_button.setStyleSheet("QWidget { background-color: %s}" % settle_lights_r_color.name())
-        self.settle_lights_rb_button.setStyleSheet("QWidget { background-color: %s}" % settle_lights_rb_color.name())
-        self.settle_lights_l_button.setStyleSheet("QWidget { background-color: %s}" % settle_lights_l_color.name())
-        self.settle_lights_lb_button.setStyleSheet("QWidget { background-color: %s}" % settle_lights_lb_color.name())
 
         ######connect the slots########
         self.settle_lights_r_button.clicked.connect(lambda: self.color_select_slot("settle_lights", "right_side_color",
@@ -385,41 +362,14 @@ class SerialThread(QtCore.QThread):
         ####make the buttons#####
         self.trial_lights_r_pattern_button = QtWidgets.QComboBox()
         self.trial_lights_r_pattern_button.insertItems(0, self.pattern_list)
-        self.trial_lights_r_pattern_button.setCurrentIndex(self.settings.value("lights/trial_lights/box_id_" +
-                                                                                str(self.box_id) + "right_pattern", int)
-                                                            )
         self.trial_lights_l_pattern_button = QtWidgets.QComboBox()
         self.trial_lights_l_pattern_button.insertItems(0, self.pattern_list)
-        self.trial_lights_l_pattern_button.setCurrentIndex(self.settings.value("lights/trial_lights/box_id_" +
-                                                                                str(self.box_id) + "left_pattern", int))
         self.trial_lights_r_button = QtWidgets.QPushButton()
         self.trial_lights_l_button = QtWidgets.QPushButton()
         self.trial_lights_rb_button = QtWidgets.QPushButton()
         self.trial_lights_lb_button = QtWidgets.QPushButton()
-        ####make the custom colors from the saved settings#####
-        trial_lights_r_color = QtGui.QColor()
-        trial_lights_l_color = QtGui.QColor()
-        trial_lights_rb_color = QtGui.QColor()
-        trial_lights_lb_color = QtGui.QColor()
-        trial_lights_r_color.setHsv(self.settings.value("lights/trial_lights/box_id_" + str(self.box_id) +
-                                                         "right_side_color", int),
-                                     self.settings.value(("lights/trial_lights/box_id_" + str(self.box_id) +
-                                                          "right_side_sat"), int), self.settings.value((
-                                                            "lights/trial_lights/box_id_" + str(self.box_id) +
-                                                            "right_side_bright"), int))
-        trial_lights_rb_color.setHsv(self.settings.value("lights/trial_lights/box_id_" + str(self.box_id) +
-                                                          "right_back_color", int), self.settings.value(
-            ("lights/trial_lights/box_id_" + str(self.box_id) + "right_back_sat"), int), self.settings.value(
-                ("lights/trial_lights/box_id_" + str(self.box_id) + "right_back_bright"), int))
-        trial_lights_l_color.setHsv(self.settings.value("lights/trial_lights/box_id_" + str(self.box_id) +
-                                                         "left_side_color", int),
-                                     self.settings.value(("lights/trial_lights/box_id_" + str(self.box_id) +
-                                                          "left_side_sat"), int), self.settings.value(
-                ("lights/trial_lights/box_id_" + str(self.box_id) + "left_side_bright"), int))
-        trial_lights_lb_color.setHsv(self.settings.value("lights/trial_lights/box_id_" + str(self.box_id) +
-                                                          "left_back_color", int), self.settings.value(
-            ("lights/trial_lights/box_id_" + str(self.box_id) + "left_back_sat"), int), self.settings.value(
-                ("lights/trial_lights/box_id_" + str(self.box_id) + "left_back_bright"), int))
+
+        self.get_trial_lights_settings()
 
         ######add the buttons to the layout#######
         lights_tab_layout.addRow("Right Side trial Pattern", self.trial_lights_r_pattern_button)
@@ -428,13 +378,6 @@ class SerialThread(QtCore.QThread):
         lights_tab_layout.addRow("Left Side trial Pattern", self.trial_lights_l_pattern_button)
         lights_tab_layout.addRow("Left Side trial Lights Color", self.trial_lights_l_button)
         lights_tab_layout.addRow("Left Side trial Lights Background Color", self.trial_lights_lb_button)
-
-
-        #############style#################
-        self.trial_lights_r_button.setStyleSheet("QWidget { background-color: %s}" % trial_lights_r_color.name())
-        self.trial_lights_rb_button.setStyleSheet("QWidget { background-color: %s}" % trial_lights_rb_color.name())
-        self.trial_lights_l_button.setStyleSheet("QWidget { background-color: %s}" % trial_lights_l_color.name())
-        self.trial_lights_lb_button.setStyleSheet("QWidget { background-color: %s}" % trial_lights_lb_color.name())
 
         ######connect the slots########
         self.trial_lights_r_button.clicked.connect(lambda: self.color_select_slot("trial_lights", "right_side_color",
@@ -459,41 +402,16 @@ class SerialThread(QtCore.QThread):
         ####make the buttons#####
         self.start_lights_r_pattern_button = QtWidgets.QComboBox()
         self.start_lights_r_pattern_button.insertItems(0, self.pattern_list)
-        self.start_lights_r_pattern_button.setCurrentIndex(self.settings.value("lights/start_lights/box_id_" +
-                                                                               str(self.box_id) + "right_pattern", int)
-                                                           )
+
         self.start_lights_l_pattern_button = QtWidgets.QComboBox()
         self.start_lights_l_pattern_button.insertItems(0, self.pattern_list)
-        self.start_lights_l_pattern_button.setCurrentIndex(self.settings.value("lights/start_lights/box_id_" +
-                                                                               str(self.box_id) + "left_pattern", int))
+
         self.start_lights_r_button = QtWidgets.QPushButton()
         self.start_lights_l_button = QtWidgets.QPushButton()
         self.start_lights_rb_button = QtWidgets.QPushButton()
         self.start_lights_lb_button = QtWidgets.QPushButton()
-        ####make the custom colors from the saved settings#####
-        start_lights_r_color = QtGui.QColor()
-        start_lights_l_color = QtGui.QColor()
-        start_lights_rb_color = QtGui.QColor()
-        start_lights_lb_color = QtGui.QColor()
-        start_lights_r_color.setHsv(self.settings.value("lights/start_lights/box_id_" + str(self.box_id) +
-                                                        "right_side_color", int),
-                                    self.settings.value(("lights/start_lights/box_id_" + str(self.box_id) +
-                                                         "right_side_sat"), int), self.settings.value((
-                "lights/start_lights/box_id_" + str(self.box_id) +
-                "right_side_bright"), int))
-        start_lights_rb_color.setHsv(self.settings.value("lights/start_lights/box_id_" + str(self.box_id) +
-                                                         "right_back_color", int), self.settings.value(
-            ("lights/start_lights/box_id_" + str(self.box_id) + "right_back_sat"), int), self.settings.value(
-            ("lights/start_lights/box_id_" + str(self.box_id) + "right_back_bright"), int))
-        start_lights_l_color.setHsv(self.settings.value("lights/start_lights/box_id_" + str(self.box_id) +
-                                                        "left_side_color", int),
-                                    self.settings.value(("lights/start_lights/box_id_" + str(self.box_id) +
-                                                         "left_side_sat"), int), self.settings.value(
-                ("lights/start_lights/box_id_" + str(self.box_id) + "left_side_bright"), int))
-        start_lights_lb_color.setHsv(self.settings.value("lights/start_lights/box_id_" + str(self.box_id) +
-                                                         "left_back_color", int), self.settings.value(
-            ("lights/start_lights/box_id_" + str(self.box_id) + "left_back_sat"), int), self.settings.value(
-            ("lights/start_lights/box_id_" + str(self.box_id) + "left_back_bright"), int))
+
+        self.get_start_lights_settings()
 
         ######add the buttons to the layout#######
         lights_tab_layout.addRow("Right Side start Pattern", self.start_lights_r_pattern_button)
@@ -502,12 +420,6 @@ class SerialThread(QtCore.QThread):
         lights_tab_layout.addRow("Left Side start Pattern", self.start_lights_l_pattern_button)
         lights_tab_layout.addRow("Left Side start Lights Color", self.start_lights_l_button)
         lights_tab_layout.addRow("Left Side start Lights Background Color", self.start_lights_lb_button)
-
-        #############style#################
-        self.start_lights_r_button.setStyleSheet("QWidget { background-color: %s}" % start_lights_r_color.name())
-        self.start_lights_rb_button.setStyleSheet("QWidget { background-color: %s}" % start_lights_rb_color.name())
-        self.start_lights_l_button.setStyleSheet("QWidget { background-color: %s}" % start_lights_l_color.name())
-        self.start_lights_lb_button.setStyleSheet("QWidget { background-color: %s}" % start_lights_lb_color.name())
 
         ######connect the slots########
         self.start_lights_r_button.clicked.connect(lambda: self.color_select_slot("start_lights", "right_side_color",
@@ -536,6 +448,115 @@ class SerialThread(QtCore.QThread):
         #######set the layout in the tab##########
         lights_tab_widget.setLayout(lights_tab_layout)
 
+    def get_settle_lights_settings(self):
+        ####make the custom colors from the saved settings#####
+        self.settle_lights_r_pattern_button.setCurrentIndex(self.settings.value("lights/settle_lights/box_id_" +
+                                                                                str(self.box_id) + "right_pattern", int)
+                                                            )
+        self.settle_lights_l_pattern_button.setCurrentIndex(self.settings.value("lights/settle_lights/box_id_" +
+                                                                                str(self.box_id) + "left_pattern", int))
+        self.settle_lights_r_color = QtGui.QColor()
+        self.settle_lights_l_color = QtGui.QColor()
+        self.settle_lights_rb_color = QtGui.QColor()
+        self.settle_lights_lb_color = QtGui.QColor()
+        self.settle_lights_r_color.setHsv(self.settings.value("lights/settle_lights/box_id_" + str(self.box_id) +
+                                                              "right_side_color", int),
+                                          self.settings.value(("lights/settle_lights/box_id_" + str(self.box_id) +
+                                                               "right_side_sat"), int), self.settings.value((
+                "lights/settle_lights/box_id_" + str(self.box_id) +
+                "right_side_bright"), int))
+        self.settle_lights_rb_color.setHsv(self.settings.value("lights/settle_lights/box_id_" + str(self.box_id) +
+                                                               "right_back_color", int), self.settings.value(
+            ("lights/settle_lights/box_id_" + str(self.box_id) + "right_back_sat"), int), self.settings.value(
+            ("lights/settle_lights/box_id_" + str(self.box_id) + "right_back_bright"), int))
+        self.settle_lights_l_color.setHsv(self.settings.value("lights/settle_lights/box_id_" + str(self.box_id) +
+                                                              "left_side_color", int),
+                                          self.settings.value(("lights/settle_lights/box_id_" + str(self.box_id) +
+                                                               "left_side_sat"), int), self.settings.value(
+                ("lights/settle_lights/box_id_" + str(self.box_id) + "left_side_bright"), int))
+        self.settle_lights_lb_color.setHsv(self.settings.value("lights/settle_lights/box_id_" + str(self.box_id) +
+                                                               "left_back_color", int), self.settings.value(
+            ("lights/settle_lights/box_id_" + str(self.box_id) + "left_back_sat"), int), self.settings.value(
+            ("lights/settle_lights/box_id_" + str(self.box_id) + "left_back_bright"), int))
+        #############style#################
+        self.settle_lights_r_button.setStyleSheet("QWidget { background-color: %s}" % self.settle_lights_r_color.name())
+        self.settle_lights_rb_button.setStyleSheet(
+            "QWidget { background-color: %s}" % self.settle_lights_rb_color.name())
+        self.settle_lights_l_button.setStyleSheet("QWidget { background-color: %s}" % self.settle_lights_l_color.name())
+        self.settle_lights_lb_button.setStyleSheet(
+            "QWidget { background-color: %s}" % self.settle_lights_lb_color.name())
+
+    def get_trial_lights_settings(self):
+        ####make the custom colors from the saved settings#####
+        self.trial_lights_r_color = QtGui.QColor()
+        self.trial_lights_l_color = QtGui.QColor()
+        self.trial_lights_rb_color = QtGui.QColor()
+        self.trial_lights_lb_color = QtGui.QColor()
+        self.trial_lights_r_pattern_button.setCurrentIndex(self.settings.value("lights/trial_lights/box_id_" +
+                                                                               str(self.box_id) + "right_pattern", int)
+                                                           )
+        self.trial_lights_l_pattern_button.setCurrentIndex(self.settings.value("lights/trial_lights/box_id_" +
+                                                                               str(self.box_id) + "left_pattern", int))
+        self.trial_lights_r_color.setHsv(self.settings.value("lights/trial_lights/box_id_" + str(self.box_id) +
+                                                             "right_side_color", int),
+                                         self.settings.value(("lights/trial_lights/box_id_" + str(self.box_id) +
+                                                              "right_side_sat"), int), self.settings.value((
+                "lights/trial_lights/box_id_" + str(self.box_id) +
+                "right_side_bright"), int))
+        self.trial_lights_rb_color.setHsv(self.settings.value("lights/trial_lights/box_id_" + str(self.box_id) +
+                                                              "right_back_color", int), self.settings.value(
+            ("lights/trial_lights/box_id_" + str(self.box_id) + "right_back_sat"), int), self.settings.value(
+            ("lights/trial_lights/box_id_" + str(self.box_id) + "right_back_bright"), int))
+        self.trial_lights_l_color.setHsv(self.settings.value("lights/trial_lights/box_id_" + str(self.box_id) +
+                                                             "left_side_color", int),
+                                         self.settings.value(("lights/trial_lights/box_id_" + str(self.box_id) +
+                                                              "left_side_sat"), int), self.settings.value(
+                ("lights/trial_lights/box_id_" + str(self.box_id) + "left_side_bright"), int))
+        self.trial_lights_lb_color.setHsv(self.settings.value("lights/trial_lights/box_id_" + str(self.box_id) +
+                                                              "left_back_color", int), self.settings.value(
+            ("lights/trial_lights/box_id_" + str(self.box_id) + "left_back_sat"), int), self.settings.value(
+            ("lights/trial_lights/box_id_" + str(self.box_id) + "left_back_bright"), int))
+        #############style#################
+        self.trial_lights_r_button.setStyleSheet("QWidget { background-color: %s}" % self.trial_lights_r_color.name())
+        self.trial_lights_rb_button.setStyleSheet("QWidget { background-color: %s}" % self.trial_lights_rb_color.name())
+        self.trial_lights_l_button.setStyleSheet("QWidget { background-color: %s}" % self.trial_lights_l_color.name())
+        self.trial_lights_lb_button.setStyleSheet("QWidget { background-color: %s}" % self.trial_lights_lb_color.name())
+
+    def get_start_lights_settings(self):
+        ####make the custom colors from the saved settings#####
+        self.start_lights_r_color = QtGui.QColor()
+        self.start_lights_l_color = QtGui.QColor()
+        self.start_lights_rb_color = QtGui.QColor()
+        self.start_lights_lb_color = QtGui.QColor()
+        self.start_lights_r_pattern_button.setCurrentIndex(self.settings.value("lights/start_lights/box_id_" +
+                                                                               str(self.box_id) + "right_pattern", int))
+        self.start_lights_l_pattern_button.setCurrentIndex(self.settings.value("lights/start_lights/box_id_" +
+                                                                               str(self.box_id) + "left_pattern", int))
+        self.start_lights_r_color.setHsv(self.settings.value("lights/start_lights/box_id_" + str(self.box_id) +
+                                                             "right_side_color", int),
+                                         self.settings.value(("lights/start_lights/box_id_" + str(self.box_id) +
+                                                              "right_side_sat"), int), self.settings.value((
+                "lights/start_lights/box_id_" + str(self.box_id) +
+                "right_side_bright"), int))
+        self.start_lights_rb_color.setHsv(self.settings.value("lights/start_lights/box_id_" + str(self.box_id) +
+                                                              "right_back_color", int), self.settings.value(
+            ("lights/start_lights/box_id_" + str(self.box_id) + "right_back_sat"), int), self.settings.value(
+            ("lights/start_lights/box_id_" + str(self.box_id) + "right_back_bright"), int))
+        self.start_lights_l_color.setHsv(self.settings.value("lights/start_lights/box_id_" + str(self.box_id) +
+                                                             "left_side_color", int),
+                                         self.settings.value(("lights/start_lights/box_id_" + str(self.box_id) +
+                                                              "left_side_sat"), int), self.settings.value(
+                ("lights/start_lights/box_id_" + str(self.box_id) + "left_side_bright"), int))
+        self.start_lights_lb_color.setHsv(self.settings.value("lights/start_lights/box_id_" + str(self.box_id) +
+                                                              "left_back_color", int), self.settings.value(
+            ("lights/start_lights/box_id_" + str(self.box_id) + "left_back_sat"), int), self.settings.value(
+            ("lights/start_lights/box_id_" + str(self.box_id) + "left_back_bright"), int))
+        #############style#################
+        self.start_lights_r_button.setStyleSheet("QWidget { background-color: %s}" % self.start_lights_r_color.name())
+        self.start_lights_rb_button.setStyleSheet("QWidget { background-color: %s}" % self.start_lights_rb_color.name())
+        self.start_lights_l_button.setStyleSheet("QWidget { background-color: %s}" % self.start_lights_l_color.name())
+        self.start_lights_lb_button.setStyleSheet("QWidget { background-color: %s}" % self.start_lights_lb_color.name())
+
     def color_select_slot(self, lights, hue, sat, val, button):
         temp_colorbox = QtWidgets.QColorDialog()
         temp_color = temp_colorbox.getColor()
@@ -546,7 +567,6 @@ class SerialThread(QtCore.QThread):
         self.settings.setValue(("lights/" + lights + "/box_id_" + str(self.box_id) + val + ""), int(temp[2]))
 
     def pattern_select_slot(self, lights, pat, button):
-        print(lights, pat)
         self.settings.setValue(("lights/" + lights + "/box_id_" + str(self.box_id) + pat + ""),
                                button)
 
@@ -591,7 +611,7 @@ class SerialThread(QtCore.QThread):
         while self.results_flag == 0:
             pass
         msg = QtWidgets.QMessageBox()
-        msg.setText("Results: " + str(self.results))
+        msg.setText("The most recent results are: " + str(self.results))
         msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
         msg.exec()
         self.results_flag = 0

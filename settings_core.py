@@ -424,15 +424,15 @@ class ShuttleSettings(QtCore.QObject):
 
         ########################Settle Lights ############################################
         self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_pattern"), 4)
-        self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_pattern"), 8)
-        self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_color"), 173)
-        self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_color"), 120)
-        self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_bright"), 255)
-        self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_bright"), 255)
+        self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_pattern"), 4)
+        self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_color"), 100)
+        self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_color"), 100)
+        self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_bright"), 100)
+        self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_bright"), 100)
         self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_sat"), 100)
         self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_sat"), 100)
         self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_back_color"), 200)
-        self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_back_color"), 150)
+        self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_back_color"), 200)
         self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_back_bright"), 200)
         self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_back_bright"), 200)
         self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_back_sat"), 200)
@@ -440,7 +440,7 @@ class ShuttleSettings(QtCore.QObject):
 
         ########################Trial Lights ####################################################
         self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_pattern"), 4)
-        self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_pattern"), 8)
+        self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_pattern"), 4)
         self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_side_color"), 100)
         self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_side_color"), 100)
         self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_side_bright"), 100)
@@ -456,7 +456,7 @@ class ShuttleSettings(QtCore.QObject):
 
         ########################Start Lights######################################################
         self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_pattern"), 4)
-        self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_pattern"), 8)
+        self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_pattern"), 4)
         self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_side_color"), 100)
         self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_side_color"), 100)
         self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_side_bright"), 100)
@@ -471,6 +471,7 @@ class ShuttleSettings(QtCore.QObject):
         self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_back_sat"), 200)
 
     def update_settings(self, box):
+
         self.boxes_configs_box_array = [self.settings.value(("boxes/box_id_" + str(box) + "/n_of_trials"), box),
                                         self.settings.value(("boxes/box_id_" + str(box) + "selection_mode"), 1),
                                         self.settings.value(("boxes/box_id_" + str(box) + "/settle_time"), 600),

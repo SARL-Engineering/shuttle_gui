@@ -22,7 +22,7 @@ class ShuttleSettings(QtCore.QObject):
         self.boxes_start_lights_array = []
         #############run#########################################
         self.settings.setFallbacksEnabled(False)
-        #self.settings.clear()
+        self.settings.clear()
         self.load_settings()
         self.load_settle_lights()
         self.load_trial_lights()
@@ -595,3 +595,4 @@ class ShuttleSettings(QtCore.QObject):
                                                                   "left_back_sat"), 200), 200, 225, 255, 0, 255,
                                              200, 0, 1]
         self.boxes_start_lights_array = self.boxes_start_lights_box_array
+

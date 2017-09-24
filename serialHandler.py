@@ -130,6 +130,7 @@ class SerialThread(QtCore.QThread):
             self.settings_core.restore_all_defaults()
             self.update_settings_slot()
             self.get_conf_settings()
+            self.control_id_box.setText(self.settings.value(("control_number/box_id_" + str(self.box_id))))
             self.get_settle_lights_settings()
             self.get_trial_lights_settings()
             self.get_start_lights_settings()
@@ -145,9 +146,35 @@ class SerialThread(QtCore.QThread):
             self.settings_core.restore_box_defaults(self.box_id)
             self.update_settings_slot()
             self.get_conf_settings()
+            self.control_id_box.setText(self.settings.value(("control_number/box_id_" + str(self.box_id))))
             self.get_settle_lights_settings()
             self.get_trial_lights_settings()
             self.get_start_lights_settings()
+
+    def update_settings_slot(self):
+
+            self.box_tab_widget.hide()
+            m = QtWidgets.QMessageBox()
+            m.setInformativeText("UPDATE")
+            m.exec()
+            msg = QtWidgets.QDialog()
+            msg.resize(300, 20)
+            msg.setWindowTitle("UPDATING")
+            self.update_flag = 0
+            self.settings_core.update_settings(self.box_id)
+            self.send_to_box(self.box_id)
+            self.send_to_box(",")
+            self.send_to_box("249")
+            msg.show()
+            while self.update_flag == 0:
+                pass
+            msg.close()
+            msg_box = QtWidgets.QMessageBox()
+            msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
+            msg_box.setText("Settings Updated")
+            msg_box.exec()
+            self.box_tab_widget.show()
+            self.update_flag = 0
 
     ###############SETTINGS GUI #####################################################################
 
@@ -293,25 +320,6 @@ class SerialThread(QtCore.QThread):
     def success_trials_slot(self):
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "/success_trials"),
                                self.success_trials_box.value())
-
-    def update_settings_slot(self):
-        msg = QtWidgets.QMessageBox()
-        msg.setText("Please wait, updating settings (press OK now).....")
-        self.box_tab_widget.setHidden(True)
-        self.update_flag = 0
-        self.settings_core.update_settings(self.box_id)
-        self.send_to_box(self.box_id)
-        self.send_to_box(",")
-        self.send_to_box("249")
-        msg.exec()
-        while self.update_flag == 0:
-            pass
-        msg_box = QtWidgets.QMessageBox()
-        msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
-        msg_box.setText("Settings Updated")
-        msg_box.exec()
-        self.box_tab_widget.setHidden(False)
-        self.update_flag = 0
 
 ####################################LIGHTING GUI###########################################################
     def make_lights_tab(self):

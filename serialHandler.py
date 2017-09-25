@@ -44,6 +44,7 @@ class SerialThread(QtCore.QThread):
         self.settings = QtCore.QSettings()
         self.settings_core = ShuttleSettings(main_window)
         self.results_class = BoxResults()
+        self.counter = 0;
         self.start()
 
     def __connect_signals_to_slots(self):
@@ -111,6 +112,7 @@ class SerialThread(QtCore.QThread):
         if self.tab_flag == 0:
             self.box_tab_widget.hide()
             self.id_list_widget.hide()
+        self.results_class.results_init(self.box_id)
         return self.box_tab_widget
 
     def make_admin_tab(self):
@@ -193,6 +195,7 @@ class SerialThread(QtCore.QThread):
                                        ", PLEASE WAIT (This may take a moment)")
                     self.update_flag = 0
                     self.settings_core.update_settings(self.box_id)
+                    self.results_class.results_init(self.box_id)
                     self.send_to_box(self.box_id)
                     self.send_to_box(",")
                     self.send_to_box("249")
@@ -682,8 +685,10 @@ class SerialThread(QtCore.QThread):
             self.send_to_box("250")
             print("Start pushed")
             self.msleep(50)
-        self.results_class.results_init(self.box_id)
-        self.results = [8, 18, 28, 38, 48, 58, 68, 78, 88]
+        self.counter = self.counter + 1
+        if int(self.counter) > int(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"))):
+            self.counter = 1
+        self.results = [int(self.counter), 18, 28, 38, 48, 58, 68, 78, 88]
         self.results_class.results_to_array(self.results, self.box_id)
 
     def button_two_slot(self):

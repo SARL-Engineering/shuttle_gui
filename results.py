@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtWidgets, QtGui
+import os
 from settings_core import ShuttleSettings
 
 
@@ -23,6 +24,10 @@ class BoxResults(QtCore.QObject):
         self.trialNum = [self.settings.value("control_number/box_id_" + str(box_id)),
                          self.settings.value("concentrate/box_id_" + str(box_id)), box_id,
                          QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate)]
+        mypath = ("C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/" + self.settings.value(
+            "control_number/box_id_" + str(box_id)) + "/test")
+        if not os.path.isdir(mypath):
+            os.makedirs(mypath)
         print(self.trialNum)
 
     def results_to_array(self, results_array, box_id):
@@ -31,15 +36,23 @@ class BoxResults(QtCore.QObject):
         print(self.trialNum)
         m = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
         print("n of trials = ", m)
-        if int(m) == self.counter:
+        print(self.counter)
+        if int(m) == int(results_array[0]):
+            self.trialNum[0] = self.settings.value("control_number/box_id_" + str(box_id))
+            self.trialNum[3] = QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate)
+            self.trialNum[0] = self.settings.value("control_number/box_id_" + str(box_id))
             self.counter = 0
-            print("this happens")
-            print("file string", "C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/" + self.settings.value(
-                "control_number/box_id_" + str(box_id)))
+            print("writing string to file: ", self.trialNum)
             file = open("C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/" + self.settings.value(
-                "control_number/box_id_" + str(box_id)) + ".txt", "a")
+                "control_number/box_id_" + str(box_id)) + "/test/test.txt", "a")
             for i in range(0, len(self.trialNum)):
-                file.write(str(self.trialNum[i]))
-                file.write(",")
-            file.write("\n")
+                if i == (len(self.trialNum) - 1):
+                    file.write(str(self.trialNum[i]))
+                    file.write("\n")
+                else:
+                    file.write(str(self.trialNum[i]))
+                    file.write(",")
             file.close()
+            self.trialNum = [self.settings.value("control_number/box_id_" + str(box_id)),
+                             self.settings.value("concentrate/box_id_" + str(box_id)), box_id,
+                             QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate)]

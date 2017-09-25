@@ -22,7 +22,7 @@ class ShuttleSettings(QtCore.QObject):
         self.boxes_start_lights_array = []
         #############run#########################################
         self.settings.setFallbacksEnabled(False)
-        self.settings.clear()
+        #self.settings.clear()
         self.load_settings()
         self.load_settle_lights()
         self.load_trial_lights()
@@ -38,7 +38,9 @@ class ShuttleSettings(QtCore.QObject):
         self.boxes_configs_array.append("0 spot")
         for box in range(1, 48):
             self.settings.setValue(("control_number/box_id_" + str(box)), self.settings.value((
-                "control_number/box_id_" + str(box)), "ENTER CONTROL"))
+                "control_number/box_id_" + str(box)), "ENTER GENERATION"))
+            self.settings.setValue(("concentrate/box_id_" + str(box)), self.settings.value(("concentrate/box_id_" +
+                                                                                           str(box)), "ENTER CONCENTRATE"))
             self.settings.setValue(("boxes/box_id_" + str(box) + "/n_of_trials"), self.settings.value((
                 "boxes/box_id_" + str(box) + "/n_of_trials"), box))
             self.settings.setValue(("boxes/box_id_" + str(box) + "selection_mode"), self.settings.value((
@@ -342,7 +344,8 @@ class ShuttleSettings(QtCore.QObject):
     def restore_all_defaults(self):
         for box in range(1, 48):
             ##############Control######################
-            self.settings.setValue(("control_number/box_id_" + str(box)), "ENTER CONTROL")
+            self.settings.setValue(("control_number/box_id_" + str(box)), "ENTER GENERATION")
+            self.settings.setValue(("concentrate/box_id_" + str(box)), "ENTER CONCENTRATE")
             self.settings.setValue(("boxes/box_id_" + str(box) + "/n_of_trials"), box)
             self.settings.setValue(("boxes/box_id_" + str(box) + "selection_mode"), 1)
             self.settings.setValue(("boxes/box_id_" + str(box) + "/settle_time"), 600)
@@ -407,7 +410,8 @@ class ShuttleSettings(QtCore.QObject):
 
     def restore_box_defaults(self, box):
         ##############Control######################
-        self.settings.setValue(("control_number/box_id_" + str(box)), "ENTER CONTROL")
+        self.settings.setValue(("control_number/box_id_" + str(box)), "ENTER GENERATION")
+        self.settings.setValue(("concentrate/box_id_" + str(box)), "ENTER CONCENTRATE")
         self.settings.setValue(("boxes/box_id_" + str(box) + "/n_of_trials"), box)
         self.settings.setValue(("boxes/box_id_" + str(box) + "selection_mode"), 1)
         self.settings.setValue(("boxes/box_id_" + str(box) + "/settle_time"), 600)

@@ -11,6 +11,7 @@ class BoxHandler(QtCore.QThread):
 
     start_all_threads = QtCore.pyqtSignal()
     start_all_boxes_signal = QtCore.pyqtSignal()
+    abort_all_boxes_signal = QtCore.pyqtSignal()
 
     def __init__(self, main_window):
         super(BoxHandler, self).__init__()
@@ -24,6 +25,7 @@ class BoxHandler(QtCore.QThread):
         self.list_w = self.main_window.id_list_widget  # type: QtWidgets.QListWidget
         self.should_run = True
         self.start_all_boxes_manager = False
+        self.abort_all_boxes_manager = False
         self.__connect_signals_to_slots()
 
         self.setup_gui_elements()
@@ -32,7 +34,8 @@ class BoxHandler(QtCore.QThread):
     def __connect_signals_to_slots(self):
         # pass
         self.main_window.id_list_widget.currentRowChanged.connect(self.on_list_item_changed)
-        self.start_all_boxes_signal.connect(self.on_start)
+        self.start_all_boxes_signal.connect(self.starter)
+        self.abort_all_boxes_signal.connect(self.abort_all)
         my_it = sorted(comports())
 
         ports = []  # type: serial.Serial
@@ -66,12 +69,15 @@ class BoxHandler(QtCore.QThread):
     def on_list_item_changed(self):
         pass
 
-    def on_start(self):
-        print("on start")
-
     def starter(self):
+        print("Box manager start all")
         self.start_all_boxes_signal.emit()
         self.start_all_boxes_manager = False
+
+    def abort_all(self):
+        print("Box manager abort all")
+        self.abort_all_boxes_signal.emit()
+        self.abort_all_boxes_manager = False
 
     def on_stop_all_threads_slot(self):
         print("Box handler exiting")

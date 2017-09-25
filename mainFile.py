@@ -1,5 +1,5 @@
 import sys
-from PyQt5 import QtCore, QtWidgets, uic
+from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import signal
 import serial
 from serial.tools.list_ports import comports
@@ -17,8 +17,31 @@ class NewWindow(QtWidgets.QMainWindow):
         super(NewWindow, self).__init__(parent)
         uic.loadUi(UI_FILE_PATH, self)
 
+        self.welcome = QtWidgets.QDialog()
+        self.welcome.setWindowTitle("SARL Shuttlebox Behavior System")
+        self.welcome_label = QtWidgets.QLabel(
+            "Welcome to the SARL Shuttlebox Behavior System. Brought to you by: \n Aaron Rito, Corwin Perren, Vance Langer. Press GO! to get started.")
+        self.welcome_button = QtWidgets.QPushButton("GO!")
+        self.welcome_window = QtWidgets.QGraphicsScene()
+        self.welcome_image = QtGui.QImage("logo.png")
+        self.lab = QtWidgets.QLabel()
+        layout = QtWidgets.QVBoxLayout()
+        self.imageLabel = QtWidgets.QLabel()
+        self.imageLabel.setPixmap(QtGui.QPixmap.fromImage(self.welcome_image))
+        layout.addWidget(self.imageLabel)
+        layout.addWidget(self.welcome_label)
+        layout.addWidget(self.welcome_button)
+        self.welcome_button.clicked.connect(self.welcome_slot)
+
+        self.welcome.setLayout(layout)
+        self.welcome.resize(300, 300)
+        self.welcome.show()
         self.settings_class = ShuttleSettings(self)
         self.box_handler_class = BoxHandler(self)
+        self.welcome.exec()
+
+    def welcome_slot(self):
+        self.welcome.accept()
 
     def closeEvent(self, event):
         self.stop_all_threads.emit()

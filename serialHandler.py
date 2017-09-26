@@ -124,10 +124,17 @@ class SerialThread(QtCore.QThread):
         self.restore_all_def_button.clicked.connect(self.restore_all_def_slot)
         self.restore_def_button = QtWidgets.QPushButton("MOSTLY SAFE")
         self.restore_def_button.clicked.connect(self.restore_def_slot)
+        self.apply_all_button = QtWidgets.QPushButton("APPLY TO ALL")
+        self.apply_all_button.clicked.connect(self.apply_all_slot)
 
         admin_layout.addRow("Restore defaults for Shuttlebox " + str(self.box_id), self.restore_def_button)
         admin_layout.addRow("Restore all defaults", self.restore_all_def_button)
+        admin_layout.addRow("Apply settings to all boxes", self.apply_all_button)
         admin_tab_widget.setLayout(admin_layout)
+
+    def apply_all_slot(self):
+        print("apply all slot")
+        self.settings_core.apply_all_settings(self.box_id)
 
     def restore_all_def_slot(self):
         if self.current_state != 0:

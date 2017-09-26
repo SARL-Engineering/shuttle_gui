@@ -92,7 +92,7 @@ class ShuttleSettings(QtCore.QObject):
 
     def load_settle_lights(self):
         self.boxes_settle_lights_array.append("0 spot")
-        for box in range (1, 48):
+        for box in range(1, 48):
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_pattern"), self.settings.value((
                 "lights/settle_lights/box_id_" + str(box) + "right_pattern"), 4))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((
@@ -599,4 +599,157 @@ class ShuttleSettings(QtCore.QObject):
                                                                   "left_back_sat"), 200), 200, 225, 255, 0, 255,
                                              200, 0, 1]
         self.boxes_start_lights_array = self.boxes_start_lights_box_array
+
+    def apply_all_settings(self, box_id):
+        for box in range(1, 48):
+            self.settings.setValue(("control_number/box_id_" + str(box)), self.settings.value((
+                "control_number/box_id_" + str(box_id)), "ENTER GENERATION"))
+            self.settings.setValue(("concentrate/box_id_" + str(box)), self.settings.value(("concentrate/box_id_" +
+                                                                                           str(box_id)), "ENTER CONCENTRATE"))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/n_of_trials"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "/n_of_trials"), box))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "selection_mode"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "selection_mode"), 1))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/settle_time"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "/settle_time"), 600))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/trial_duration"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "/trial_duration"), 24))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/seek_time"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "/seek_time"), 12))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/trial_settle_time"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "/trial_settle_time"), 12))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/fault_trials_percent"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "/fault_trials_percent"), 16))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/fault_out_side"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "/fault_out_side"), 8))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/fault_out_percent"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "/fault_out_percent"), 95))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/shock_voltage"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "/shock_voltage"), 20))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/shock_interval"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "/shock_interval"), 500))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/shock_duration"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "/shock_duration"), 50))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/success_trials"), self.settings.value((
+                "boxes/box_id_" + str(box_id) + "/success_trials"), 5))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_pattern"), self.settings.value((
+                "lights/settle_lights/box_id_" + str(box) + "right_pattern"), 4))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((
+                "lights/settle_lights/box_id_" + str(box_id) + "left_pattern"), 8))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_color"),
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "right_side_color"),
+                                                       173))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_color"),
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "left_side_color"),
+                                                       120))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_bright"),
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "right_side_bright")
+                                                       , 255))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_bright"),
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "left_side_bright"),
+                                                       255))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_sat"),
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "right_side_sat"),
+                                                       100))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_sat"),
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "left_side_sat"),
+                                                       100))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_back_color"),
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "right_back_color"),
+                                                       200))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_back_color"),
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "left_back_color"),
+                                                       150))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_back_bright"),
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "right_back_bright")
+                                                       , 200))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_back_bright"),
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "left_back_bright"),
+                                                       200))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_back_sat"),
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "right_back_sat"),
+                                                       200))
+            self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_back_sat"),
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "left_back_sat"),
+                                                       200))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_pattern"), self.settings.value((
+                "lights/trial_lights/box_id_" + str(box_id) + "right_pattern"), 4))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((
+                "lights/trial_lights/box_id_" + str(box_id) + "left_pattern"), 8))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_side_color"),
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "right_side_color"),
+                                                       100))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_side_color"),
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "left_side_color"),
+                                                       100))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_side_bright"),
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "right_side_bright")
+                                                       , 100))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_side_bright"),
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "left_side_bright"),
+                                                       100))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_side_sat"),
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "right_side_sat"),
+                                                       100))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_side_sat"),
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "left_side_sat"),
+                                                       100))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_back_color"),
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "right_back_color"),
+                                                       200))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_back_color"),
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "left_back_color"),
+                                                       200))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_back_bright"),
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "right_back_bright")
+                                                       , 200))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_back_bright"),
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "left_back_bright"),
+                                                       200))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_back_sat"),
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "right_back_sat"),
+                                                       200))
+            self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_back_sat"),
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "left_back_sat"),
+                                                       200))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_pattern"), self.settings.value((
+                "lights/start_lights/box_id_" + str(box_id) + "right_pattern"), 4))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((
+                "lights/start_lights/box_id_" + str(box_id) + "left_pattern"), 8))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_side_color"),
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "right_side_color"),
+                                                       100))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_side_color"),
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "left_side_color"),
+                                                       100))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_side_bright"),
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "right_side_bright")
+                                                       , 100))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_side_bright"),
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "left_side_bright"),
+                                                       100))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_side_sat"),
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "right_side_sat"),
+                                                       100))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_side_sat"),
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "left_side_sat"),
+                                                       100))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_back_color"),
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "right_back_color"),
+                                                       200))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_back_color"),
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "left_back_color"),
+                                                       200))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_back_bright"),
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "right_back_bright")
+                                                       , 200))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_back_bright"),
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "left_back_bright"),
+                                                       200))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_back_sat"),
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "right_back_sat"),
+                                                       200))
+            self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_back_sat"),
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "left_back_sat"),
+                                                       200))
 

@@ -133,7 +133,6 @@ class ShuttleSettings(QtCore.QObject):
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_back_sat"),
                                    self.settings.value(("lights/settle_lights/box_id_" + str(box) + "left_back_sat"),
                                                        200))
-
             self.boxes_settle_lights_box_array = [self.settings.value(("lights/settle_lights/box_id_" + str(box) +
                                                                        "right_pattern"), 4),
                                                   self.settings.value(("lights/settle_lights/box_id_" + str(box) +
@@ -174,6 +173,7 @@ class ShuttleSettings(QtCore.QObject):
         return self.boxes_settle_lights_array[box_id]
 
     def load_trial_lights(self):
+
         self.boxes_trial_lights_array.append("0 spot")
         for box in range (1, 48):
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_pattern"), self.settings.value((
@@ -257,7 +257,7 @@ class ShuttleSettings(QtCore.QObject):
 
     def load_start_lights(self):
         self.boxes_start_lights_array.append("0 spot")
-        for box in range (1, 48):
+        for box in range(1, 48):
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_pattern"), self.settings.value((
                 "lights/start_lights/box_id_" + str(box) + "right_pattern"), 4))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((

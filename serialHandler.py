@@ -43,8 +43,8 @@ class SerialThread(QtCore.QThread):
         self.__connect_signals_to_slots()
         self.settings = QtCore.QSettings()
         self.settings_core = ShuttleSettings(main_window)
-        self.results_class = BoxResults()
-        self.counter = 0;
+        self.results_class = BoxResults(main_window)
+        self.counter = 0
         self.start()
 
     def __connect_signals_to_slots(self):
@@ -189,6 +189,7 @@ class SerialThread(QtCore.QThread):
                 m.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
                 x = m.exec()
                 if x == QtWidgets.QMessageBox.Ok:
+                    self.counter = 0
                     msg = QtWidgets.QDialog()
                     msg.resize(500, 10)
                     msg.setWindowTitle("UPDATING SHUTTLEBOX " + str(self.box_id) +
@@ -423,18 +424,17 @@ class SerialThread(QtCore.QThread):
 
         ######connect the slots########
         self.trial_lights_r_button.clicked.connect(lambda: self.color_select_slot("trial_lights", "right_side_color",
-                                                                                   "right_side_sat", "right_side_bright"
-                                                                                   , self.trial_lights_r_button))
+                                                                                  "right_side_sat", "right_side_bright"
+                                                                                  , self.trial_lights_r_button))
         self.trial_lights_rb_button.clicked.connect(lambda: self.color_select_slot("trial_lights", "right_back_color",
-                                                                                    "right_back_sat",
-                                                                                    "right_back_bright",
-                                                                                    self.trial_lights_rb_button))
+                                                                                   "right_back_sat", "right_back_bright"
+                                                                                   , self.trial_lights_rb_button))
         self.trial_lights_l_button.clicked.connect(lambda: self.color_select_slot("trial_lights", "left_side_color",
-                                                                                   "left_side_sat", "left_side_bright"
-                                                                                   , self.trial_lights_l_button))
+                                                                                  "left_side_sat", "left_side_bright",
+                                                                                  self.trial_lights_l_button))
         self.trial_lights_lb_button.clicked.connect(lambda: self.color_select_slot("trial_lights", "left_back_color",
-                                                                                    "left_back_sat", "left_back_bright"
-                                                                                    , self.trial_lights_lb_button))
+                                                                                   "left_back_sat", "left_back_bright",
+                                                                                   self.trial_lights_lb_button))
         self.trial_lights_r_pattern_button.currentIndexChanged.connect(lambda: self.pattern_select_slot(
             "trial_lights", "right_pattern", self.trial_lights_r_pattern_button.currentIndex()))
         self.trial_lights_l_pattern_button.currentIndexChanged.connect(lambda: self.pattern_select_slot(
@@ -664,9 +664,6 @@ class SerialThread(QtCore.QThread):
         self.current_state_label = self.current_state_strings[status]
         self.current_state_show.setText(self.current_state_label)
 
-    def start_all_boxes_slot(self):
-        self.start_all_boxes_signal.emit()
-
     def button_one_slot(self):
         if self.control_id_box.toPlainText() == "ENTER GENERATION":
             msg = QtWidgets.QMessageBox()
@@ -688,6 +685,7 @@ class SerialThread(QtCore.QThread):
         self.counter = self.counter + 1
         if int(self.counter) > int(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"))):
             self.counter = 1
+        print(self.counter)
         self.results = [int(self.counter), 18, 28, 38, 48, 58, 68, 78, 88]
         self.results_class.results_to_array(self.results, self.box_id)
 
@@ -715,30 +713,32 @@ class SerialThread(QtCore.QThread):
         self.msleep(50)
 
     def on_start_all_boxes(self):
-        if self.control_id_box.toPlainText() == "ENTER GENERATION":
-            msg = QtWidgets.QMessageBox()
-            msg.setInformativeText("Please enter a generation ID for box " + str(self.box_id))
-            msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
-            msg.exec()
-        elif self.concentrate_box.toPlainText() == "ENTER CONCENTRATE":
-            msg = QtWidgets.QMessageBox()
-            msg.setInformativeText("Please enter a concentration for box " + str(self.box_id))
-            msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
-            msg.exec()
-        else:
-            self.results_class.results_init(self.box_id)
-            self.send_to_box(self.box_id)
-            self.send_to_box(",")
-            self.send_to_box("250")
-            print("Start all")
-            self.msleep(50)
+        print("on start all " + str(self.box_id))
+        # if self.control_id_box.toPlainText() == "ENTER GENERATION":
+        #     msg = QtWidgets.QMessageBox()
+        #     msg.setInformativeText("Please enter a generation ID for box " + str(self.box_id))
+        #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+        #     msg.exec()
+        # elif self.concentrate_box.toPlainText() == "ENTER CONCENTRATE":
+        #     msg = QtWidgets.QMessageBox()
+        #     msg.setInformativeText("Please enter a concentration for box " + str(self.box_id))
+        #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+        #     msg.exec()
+        # else:
+        #     self.results_class.results_init(self.box_id)
+        #     self.send_to_box(self.box_id)
+        #     self.send_to_box(",")
+        #     self.send_to_box("250")
+        #     print("Start all")
+        #     self.msleep(50)
 
     def on_abort_all_boxes(self):
-        self.send_to_box(self.box_id)
-        self.send_to_box(",")
-        self.send_to_box("254")
-        print("Abort all")
-        self.msleep(50)
+        print("abort all from " + str(self.box_id))
+        # self.send_to_box(self.box_id)
+        # self.send_to_box(",")
+        # self.send_to_box("254")
+        # print("Abort all")
+        # self.msleep(50)
 
     def on_current_box_id_changed_slot(self, row_id):
         list_box_id = int(self.id_list_widget.currentItem().text())
@@ -760,7 +760,4 @@ class SerialThread(QtCore.QThread):
     def on_stop_all_threads_slot(self):
         self.should_run = False
 
-    def scaling(self, Input, InputLow, InputHigh, OutputLow, OutputHigh):
-        Result = int(((Input - InputLow) / (InputHigh - InputLow)) * (OutputHigh - OutputLow) + OutputLow)
-        return Result
 

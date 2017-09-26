@@ -6,6 +6,7 @@ from serial.tools.list_ports import comports
 import serialHandler
 from Framework.BoxHandlerCore import BoxHandler
 from settings_core import ShuttleSettings
+from results import BoxResults
 
 UI_FILE_PATH = "arduinoform_corwin.ui"
 
@@ -20,7 +21,8 @@ class NewWindow(QtWidgets.QMainWindow):
         self.welcome = QtWidgets.QDialog()
         self.welcome.setWindowTitle("SARL Shuttlebox Behavior System")
         self.welcome_label = QtWidgets.QLabel(
-            "Welcome to the SARL Shuttlebox Behavior System. Brought to you by: \n Aaron Rito, Corwin Perren, Vance Langer. Press GO! to get started.")
+            "Welcome to the SARL Shuttlebox Behavior System. Brought to you by: \n Aaron Rito," +
+            "Corwin Perren, Vance Langer. Press GO! to get started.")
         self.welcome_button = QtWidgets.QPushButton("GO!")
         self.welcome_window = QtWidgets.QGraphicsScene()
         self.welcome_image = QtGui.QImage("logo.png")
@@ -38,6 +40,7 @@ class NewWindow(QtWidgets.QMainWindow):
         self.welcome.show()
         self.settings_class = ShuttleSettings(self)
         self.box_handler_class = BoxHandler(self)
+        self.results_class = BoxResults(self)
         self.welcome.exec()
 
     def welcome_slot(self):

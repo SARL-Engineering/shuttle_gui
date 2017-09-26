@@ -133,8 +133,19 @@ class SerialThread(QtCore.QThread):
         admin_tab_widget.setLayout(admin_layout)
 
     def apply_all_slot(self):
-        print("apply all slot")
-        self.settings_core.apply_all_settings(self.box_id)
+        msg = QtWidgets.QMessageBox()
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+        msg.setInformativeText("Are you sure you want to apply the settings from Shuttlebox " + str(self.box_id) +
+                               " to all Shuttlebox settings?")
+        x = msg.exec()
+        if x == QtWidgets.QMessageBox.Ok:
+            self.settings_core.apply_all_settings(self.box_id)
+            msg = QtWidgets.QMessageBox()
+            msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+            msg.setInformativeText("Settings from Shuttlebox " + str(self.box_id) +
+                                   " applied to all Shuttlebox settings. " +
+                                   "Please restart the program to update the boxes")
+            msg.exec()
 
     def restore_all_def_slot(self):
         if self.current_state != 0:

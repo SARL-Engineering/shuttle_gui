@@ -21,8 +21,8 @@ class SerialThread(QtCore.QThread):
         self.id_list_widget = self.main_window.id_list_widget  # type: QtWidgets.QListWidget
         self.in_buffer = ""
         self.should_run = True
-        self.current_state = None
-        self.current_state_label = None
+        self.current_state = 0
+        self.current_state_label = "Wait for Start"
         self.current_state_strings = ["Wait for Start", "Test Start", "Settle Period", "Inter Trial", "Trial Start",
                                       "Trial Seek", "Trial Shock", "Trial End", "Abort", "Test End"]
         self.pattern_list = ["Heart", "Big X", "Big O", "Horizontal Lines", "Vertical Lines", "Diagonal Lines",
@@ -58,8 +58,9 @@ class SerialThread(QtCore.QThread):
                     self.in_buffer += in_byte
                     if in_byte == "\n":
                         if "show: " in self.in_buffer:
-                            self.box_tab_widget.show()
-                            self.id_list_widget.show()
+                            pass
+                            #self.box_tab_widget.show()
+                            #self.id_list_widget.show()
                         if "u: " in self.in_buffer:
                             self.update_flag = True
                         if "Box ID: " in self.in_buffer:
@@ -69,7 +70,8 @@ class SerialThread(QtCore.QThread):
                         if "s: " in self.in_buffer:
                             self.current_state = int(self.in_buffer.split(": ")[1])
                             print("STATE = " + str(self.current_state))
-                            self.update_status_label(int(self.current_state))
+                            if self.box_tab_widget:
+                                self.update_status_label(int(self.current_state))
                         if "z, " in self.in_buffer:
                             self.results = self.in_buffer.split(", ")
                             self.results.pop()
@@ -156,6 +158,7 @@ class SerialThread(QtCore.QThread):
                 widgetToRemove.setParent(None)
 
             layout.addWidget(self.make_box_tab_widget(self.tab_widget_w))
+            self.update_status_label(int(self.current_state))
             self.id_list_widget.sortItems()
             self.tab_flag = 1
 
@@ -171,8 +174,9 @@ class SerialThread(QtCore.QThread):
         self.make_admin_tab()
         ####Hide the tabs until the program is ready to use####
         if self.tab_flag == 0:
-            self.box_tab_widget.hide()
-            self.id_list_widget.hide()
+            pass
+            #self.box_tab_widget.hide()
+            #self.id_list_widget.hide()
         self.results_class.results_init(self.box_id)
         return self.box_tab_widget
 
@@ -729,7 +733,7 @@ class SerialThread(QtCore.QThread):
     def button_one_slot(self):
         if self.settings_flag:
             msg = QtWidgets.QMessageBox()
-            msg.setInformativeText("Please update Shuttlebox " + str(self.box_id) + "before starting.")
+            msg.setInformativeText("Please update Shuttlebox " + str(self.box_id) + " before starting.")
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
             msg.exec()
         else:
@@ -756,12 +760,13 @@ class SerialThread(QtCore.QThread):
                 self.msleep(50)
             ######################This section is to test results behavior, remove before launch!############
             self.counter = self.counter + 1
+            self.results = [int(self.counter), 18, 28, 38, 48, 58, 68, 78, 88]
             print(self.counter)
             if int(self.counter) == int(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"))):
                 print("this happens")
-                self.results = [int(self.counter), 18, 28, 38, 48, 58, 68, 78, 88]
-                self.results_class.results_to_array(self.results, self.box_id)
                 self.counter = 0
+            self.results_class.results_to_array(self.results, self.box_id)
+
 
     def button_two_slot(self):
         BoxHandler.start_all_boxes_manager = True

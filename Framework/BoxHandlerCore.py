@@ -1,10 +1,7 @@
 from PyQt5 import QtCore, QtWidgets
 import serial
 from serial.tools.list_ports import comports
-
 import serialHandler
-
-from Framework.signalTestCore import SignalTest
 
 
 class BoxHandler(QtCore.QThread):

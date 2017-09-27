@@ -1,6 +1,4 @@
-from PyQt5 import QtCore, QtWidgets
-import serial
-from Framework.BoxHandlerCore import BoxHandler
+from PyQt5 import QtCore
 
 
 class ShuttleSettings(QtCore.QObject):
@@ -40,7 +38,8 @@ class ShuttleSettings(QtCore.QObject):
             self.settings.setValue(("control_number/box_id_" + str(box)), self.settings.value((
                 "control_number/box_id_" + str(box)), "ENTER GENERATION"))
             self.settings.setValue(("concentrate/box_id_" + str(box)), self.settings.value(("concentrate/box_id_" +
-                                                                                           str(box)), "ENTER CONCENTRATE"))
+                                                                                           str(box)),
+                                                                                           "ENTER CONCENTRATE"))
             self.settings.setValue(("boxes/box_id_" + str(box) + "/n_of_trials"), self.settings.value((
                 "boxes/box_id_" + str(box) + "/n_of_trials"), box))
             self.settings.setValue(("boxes/box_id_" + str(box) + "selection_mode"), self.settings.value((
@@ -605,7 +604,8 @@ class ShuttleSettings(QtCore.QObject):
             self.settings.setValue(("control_number/box_id_" + str(box)), self.settings.value((
                 "control_number/box_id_" + str(box_id)), "ENTER GENERATION"))
             self.settings.setValue(("concentrate/box_id_" + str(box)), self.settings.value(("concentrate/box_id_" +
-                                                                                           str(box_id)), "ENTER CONCENTRATE"))
+                                                                                           str(box_id)),
+                                                                                           "ENTER CONCENTRATE"))
             self.settings.setValue(("boxes/box_id_" + str(box) + "/n_of_trials"), self.settings.value((
                 "boxes/box_id_" + str(box_id) + "/n_of_trials"), box))
             self.settings.setValue(("boxes/box_id_" + str(box) + "selection_mode"), self.settings.value((
@@ -637,38 +637,38 @@ class ShuttleSettings(QtCore.QObject):
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((
                 "lights/settle_lights/box_id_" + str(box_id) + "left_pattern"), 8))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_color"),
-                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "right_side_color"),
-                                                       173))
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) +
+                                                        "right_side_color"), 173))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_color"),
-                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "left_side_color"),
-                                                       120))
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) +
+                                                        "left_side_color"), 120))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_bright"),
-                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "right_side_bright")
-                                                       , 255))
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) +
+                                                        "right_side_bright"), 255))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_bright"),
-                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "left_side_bright"),
-                                                       255))
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) +
+                                                        "left_side_bright"),255))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_side_sat"),
-                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "right_side_sat"),
-                                                       100))
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) +
+                                                        "right_side_sat"), 100))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_side_sat"),
                                    self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "left_side_sat"),
                                                        100))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_back_color"),
-                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "right_back_color"),
-                                                       200))
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) +
+                                                        "right_back_color"), 200))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_back_color"),
-                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "left_back_color"),
-                                                       150))
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) +
+                                                        "left_back_color"), 150))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_back_bright"),
-                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "right_back_bright")
-                                                       , 200))
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) +
+                                                        "right_back_bright"), 200))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_back_bright"),
-                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "left_back_bright"),
-                                                       200))
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) +
+                                                        "left_back_bright"), 200))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_back_sat"),
-                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "right_back_sat"),
-                                                       200))
+                                   self.settings.value(("lights/settle_lights/box_id_" + str(box_id) +
+                                                        "right_back_sat"), 200))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_back_sat"),
                                    self.settings.value(("lights/settle_lights/box_id_" + str(box_id) + "left_back_sat"),
                                                        200))
@@ -677,17 +677,17 @@ class ShuttleSettings(QtCore.QObject):
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((
                 "lights/trial_lights/box_id_" + str(box_id) + "left_pattern"), 8))
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_side_color"),
-                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "right_side_color"),
-                                                       100))
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) +
+                                                        "right_side_color"), 100))
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_side_color"),
-                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "left_side_color"),
-                                                       100))
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) +
+                                                        "left_side_color"), 100))
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_side_bright"),
-                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "right_side_bright")
-                                                       , 100))
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) +
+                                                        "right_side_bright"), 100))
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_side_bright"),
-                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "left_side_bright"),
-                                                       100))
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) +
+                                                        "left_side_bright"), 100))
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_side_sat"),
                                    self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "right_side_sat"),
                                                        100))
@@ -695,17 +695,17 @@ class ShuttleSettings(QtCore.QObject):
                                    self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "left_side_sat"),
                                                        100))
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_back_color"),
-                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "right_back_color"),
-                                                       200))
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) +
+                                                        "right_back_color"), 200))
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_back_color"),
                                    self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "left_back_color"),
                                                        200))
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_back_bright"),
-                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "right_back_bright")
-                                                       , 200))
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) +
+                                                        "right_back_bright"), 200))
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_back_bright"),
-                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "left_back_bright"),
-                                                       200))
+                                   self.settings.value(("lights/trial_lights/box_id_" + str(box_id) +
+                                                        "left_back_bright"), 200))
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_back_sat"),
                                    self.settings.value(("lights/trial_lights/box_id_" + str(box_id) + "right_back_sat"),
                                                        200))
@@ -717,17 +717,17 @@ class ShuttleSettings(QtCore.QObject):
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((
                 "lights/start_lights/box_id_" + str(box_id) + "left_pattern"), 8))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_side_color"),
-                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "right_side_color"),
-                                                       100))
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) +
+                                                        "right_side_color"), 100))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_side_color"),
-                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "left_side_color"),
-                                                       100))
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) +
+                                                        "left_side_color"), 100))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_side_bright"),
-                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "right_side_bright")
-                                                       , 100))
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) +
+                                                        "right_side_bright"), 100))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_side_bright"),
-                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "left_side_bright"),
-                                                       100))
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) +
+                                                        "left_side_bright"), 100))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_side_sat"),
                                    self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "right_side_sat"),
                                                        100))
@@ -735,17 +735,17 @@ class ShuttleSettings(QtCore.QObject):
                                    self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "left_side_sat"),
                                                        100))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_back_color"),
-                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "right_back_color"),
-                                                       200))
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) +
+                                                        "right_back_color"), 200))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_back_color"),
-                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "left_back_color"),
-                                                       200))
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) +
+                                                        "left_back_color"), 200))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_back_bright"),
-                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "right_back_bright")
-                                                       , 200))
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) +
+                                                        "right_back_bright"), 200))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_back_bright"),
-                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "left_back_bright"),
-                                                       200))
+                                   self.settings.value(("lights/start_lights/box_id_" + str(box_id) +
+                                                        "left_back_bright"), 200))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_back_sat"),
                                    self.settings.value(("lights/start_lights/box_id_" + str(box_id) + "right_back_sat"),
                                                        200))

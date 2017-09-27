@@ -1,9 +1,7 @@
 import sys
-from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import signal
-import serial
-from serial.tools.list_ports import comports
-import serialHandler
+from PyQt5 import QtCore, QtWidgets, QtGui, uic
+import serialHandler #even though this isnt used, it needs to be here for the program to compile?
 from Framework.BoxHandlerCore import BoxHandler
 from settings_core import ShuttleSettings
 from results import BoxResults

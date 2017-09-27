@@ -54,6 +54,7 @@ class BoxResults(QtCore.QObject):
         self.shockModeTime.append(results_array[7])
         self.shockedTime.append(results_array[8])
         m = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
+        print("m = " + str(m) + "res = " + str(results_array[0]))
         if int(m) == int(results_array[0]):
             #####If the test is over print the results to the files and clear the arrays for new data####
             self.save_results(box_id, self.acceptSide, "/acceptSide.txt")

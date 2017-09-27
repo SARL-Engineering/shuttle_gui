@@ -21,7 +21,6 @@ class SerialThread(QtCore.QThread):
         self.id_list_widget = self.main_window.id_list_widget  # type: QtWidgets.QListWidget
         self.in_buffer = ""
         self.should_run = True
-        self.n_of_trials_flag = None
         self.current_state = None
         self.current_state_label = None
         self.current_state_strings = ["Wait for Start", "Test Start", "Settle Period", "Inter Trial", "Trial Start",
@@ -30,7 +29,6 @@ class SerialThread(QtCore.QThread):
                              "Big Line", "Small Box", "Corners"]
         self.results_flag = 0
         self.results = None
-        self.current_tab = 0
         self.tab_flag = 0
         self.update_flag = None
         self.settings_flag = False
@@ -44,7 +42,7 @@ class SerialThread(QtCore.QThread):
         self.settings = QtCore.QSettings()
         self.settings_core = ShuttleSettings(main_window)
         self.results_class = BoxResults(main_window)
-        self.counter = 0
+        self.counter = 0 #remove this before launch
         self.start()
 
     def __connect_signals_to_slots(self):
@@ -54,19 +52,16 @@ class SerialThread(QtCore.QThread):
         self.box_handler.abort_all_boxes_signal.connect(self.on_abort_all_boxes)
 
     def run(self):
-
         while self.should_run:
-
                 if self.arduino.inWaiting():
                     in_byte = self.arduino.read().decode("utf-8")
                     self.in_buffer += in_byte
-
                     if in_byte == "\n":
                         if "show: " in self.in_buffer:
                             self.box_tab_widget.show()
                             self.id_list_widget.show()
                         if "u: " in self.in_buffer:
-                            self.update_flag = 1
+                            self.update_flag = True
                         if "Box ID: " in self.in_buffer:
                             self.box_id_found_flag = True
                             self.box_id = int(self.in_buffer.split(": ")[1])
@@ -89,6 +84,7 @@ class SerialThread(QtCore.QThread):
                             self.send_to_box(self.settings_core.send_settle_lights(self.box_id))
                             self.send_to_box(self.settings_core.send_trial_lights(self.box_id))
                             self.send_to_box(self.settings_core.send_start_lights(self.box_id))
+                            #################If there is a problem updating boxes, use these to verify the arduino######
                             # self.send_to_box(" ")
                             # self.send_to_box("50,1,600,24,12,12,16,8,95,20,500,50,5")
                             # self.send_to_box("4,8,100,150,255,0,255,0,50,75,255,0,255,0,200,225,255,0,255,200,0,1")
@@ -100,23 +96,88 @@ class SerialThread(QtCore.QThread):
                 self.msleep(50)
                 self.arduino.flush()
 
+########################Helper functions################################################################################
     def send_to_box(self, message):
         self.arduino.write(bytes(str(message), "utf-8"))
 
+    ####VERY IMPORTANT This function updates the settings in the registry, the widgets, and the arduinos. It is called
+    ####whenever there is a default reset or a box update. Called from multiple buttons...##############################
+    def update_settings_slot(self):
+        ####Make sure the box isn't running before updating####
+        if self.current_state != 0:
+            m = QtWidgets.QMessageBox()
+            m.setInformativeText("Error: Cannot update Shuttlebox while trial is running.")
+            m.exec()
+        else:
+            self.box_tab_widget.hide()
+            m = QtWidgets.QMessageBox()
+            m.setInformativeText("Are you sure you want to update Shuttlebox " + str(self.box_id))
+            m.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+            x = m.exec()
+            if x == QtWidgets.QMessageBox.Ok:
+                self.counter = 0 ##############remove this before launch#################################
+                msg = QtWidgets.QDialog()
+                msg.resize(500, 10)
+                msg.setWindowTitle("UPDATING SHUTTLEBOX " + str(self.box_id) +
+                                   ", PLEASE WAIT (This may take a moment)")
+                self.update_flag = False
+                self.settings_core.update_settings(self.box_id)
+                self.results_class.results_init(self.box_id)
+                self.send_to_box(self.box_id)
+                self.send_to_box(",")
+                self.send_to_box("249")
+                msg.show()
+                while not self.update_flag:
+                    pass
+                msg.close()
+                msg_box = QtWidgets.QMessageBox()
+                msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
+                msg_box.setText("Settings Updated")
+                msg_box.exec()
+                self.box_tab_widget.show()
+                self.update_flag = False
+                self.settings_flag = False
+
+    ####VERY IMPORTANT this function builds the new tabs when a box id is changed from the list. It also destroys the
+    ####GUI elemets from the tab being clicked away from. The thread for the Shuttlebox will still be active and
+    ####rec/send data over serial. It's important to rememebr the GUI elements do not exist outside of the clicked tab.
+    ####when the settings change they will be updated in registry and retrieved when the new id is clicked on.####
+    def on_current_box_id_changed_slot(self, row_id):
+        list_box_id = int(self.id_list_widget.currentItem().text())
+        # list_box_id = row_id + 1
+        if list_box_id == self.box_id:
+            layout = self.tab_widget_w.layout()  # type: QtWidgets.QLayout
+
+            for i in reversed(range(layout.count())):
+                widgetToRemove = layout.itemAt(i).widget()
+                # remove it from the layout list
+                layout.removeWidget(widgetToRemove)
+                # remove it from the gui
+                widgetToRemove.setParent(None)
+
+            layout.addWidget(self.make_box_tab_widget(self.tab_widget_w))
+            self.id_list_widget.sortItems()
+            self.tab_flag = 1
+
+    def on_stop_all_threads_slot(self):
+        self.should_run = False
+
+########################Build the box tab###############################################################################
     def make_box_tab_widget(self, parent):
         self.box_tab_widget = QtWidgets.QTabWidget(parent)
         self.make_control_tab()
         self.make_settings_tab()
         self.make_lights_tab()
         self.make_admin_tab()
+        ####Hide the tabs until the program is ready to use####
         if self.tab_flag == 0:
             self.box_tab_widget.hide()
             self.id_list_widget.hide()
         self.results_class.results_init(self.box_id)
         return self.box_tab_widget
 
+###############Build the Admin Tab######################################################################################
     def make_admin_tab(self):
-    ###############Admin Tab#################################################################
         admin_tab_widget = QtWidgets.QWidget()
         self.box_tab_widget.addTab(admin_tab_widget, "Admin")
         admin_layout = QtWidgets.QFormLayout()
@@ -132,6 +193,7 @@ class SerialThread(QtCore.QThread):
         admin_layout.addRow("Apply settings to all boxes", self.apply_all_button)
         admin_tab_widget.setLayout(admin_layout)
 
+    ###########Admin slots##########################################################################
     def apply_all_slot(self):
         msg = QtWidgets.QMessageBox()
         msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
@@ -194,43 +256,7 @@ class SerialThread(QtCore.QThread):
                 self.get_trial_lights_settings()
                 self.get_start_lights_settings()
 
-    def update_settings_slot(self):
-
-            if self.current_state != 0:
-                m = QtWidgets.QMessageBox()
-                m.setInformativeText("Error: Cannot update Shuttlebox while trial is running.")
-                m.exec()
-            else:
-                self.box_tab_widget.hide()
-                m = QtWidgets.QMessageBox()
-                m.setInformativeText("Are you sure you want to update Shuttlebox " + str(self.box_id))
-                m.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
-                x = m.exec()
-                if x == QtWidgets.QMessageBox.Ok:
-                    self.counter = 0
-                    msg = QtWidgets.QDialog()
-                    msg.resize(500, 10)
-                    msg.setWindowTitle("UPDATING SHUTTLEBOX " + str(self.box_id) +
-                                       ", PLEASE WAIT (This may take a moment)")
-                    self.update_flag = 0
-                    self.settings_core.update_settings(self.box_id)
-                    self.results_class.results_init(self.box_id)
-                    self.send_to_box(self.box_id)
-                    self.send_to_box(",")
-                    self.send_to_box("249")
-                    msg.show()
-                    while self.update_flag == 0:
-                        pass
-                    msg.close()
-                    msg_box = QtWidgets.QMessageBox()
-                    msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
-                    msg_box.setText("Settings Updated")
-                    msg_box.exec()
-                    self.box_tab_widget.show()
-                    self.update_flag = 0
-
-    ###############SETTINGS GUI #####################################################################
-
+###############Build the settings tab ##################################################################################
     def make_settings_tab(self):
         self.settings_tab_widget = QtWidgets.QWidget()
         self.box_tab_widget.addTab(self.settings_tab_widget, "Settings")
@@ -297,8 +323,8 @@ class SerialThread(QtCore.QThread):
         self.update_button.clicked.connect(self.update_settings_slot)
 
         self.settings_tab_widget.setLayout(settings_layout)
-        ################SETTINGS SLOTS###################################################################################
 
+    ############SETTINGS SLOTS###################################################################################
     def get_conf_settings(self):
         # retrive the settings
         self.n_of_trials_box.setValue(
@@ -331,50 +357,62 @@ class SerialThread(QtCore.QThread):
                                 int))
 
     def n_of_trials_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"), self.n_of_trials_box.value())
 
     def selection_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "selection_mode"), self.selection_box.value())
 
     def settle_time_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "/settle_time"), self.settle_time_box.value())
 
     def trial_duration_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "/trial_duration"),
                                self.trial_duration_box.value())
 
     def seek_time_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "/seek_time"), self.seek_time_box.value())
 
     def trial_settle_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "/trial_settle_time"),
                                self.trial_settle_box.value())
 
     def fault_side_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "/fault_out_side"),
                                self.fault_side_box.value())
 
     def fault_out_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "/fault_out_percent"),
                                self.fault_out_box.value())
 
     def shock_voltage_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "/shock_voltage"),
                                self.shock_voltage_box.value())
 
     def shock_interval_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "/shock_interval"),
                                self.shock_interval_box.value())
 
     def shock_duration_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "/shock_duration"),
                                self.shock_duration_box.value())
 
     def success_trials_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("boxes/box_id_" + str(self.box_id) + "/success_trials"),
                                self.success_trials_box.value())
 
-####################################LIGHTING GUI###########################################################
+####################################Build the lighting tab##############################################################
     def make_lights_tab(self):
         lights_tab_widget = QtWidgets.QWidget()
         self.box_tab_widget.addTab(lights_tab_widget, "Lights")
@@ -419,7 +457,7 @@ class SerialThread(QtCore.QThread):
         self.settle_lights_l_pattern_button.currentIndexChanged.connect(lambda: self.pattern_select_slot(
             "settle_lights", "left_pattern", self.settle_lights_l_pattern_button.currentIndex()))
 
-        #################################TRIAL LIGHTS#############################################################
+        #########################TRIAL LIGHTS#######################################################################
         ####make the buttons#####
         self.trial_lights_r_pattern_button = QtWidgets.QComboBox()
         self.trial_lights_r_pattern_button.insertItems(0, self.pattern_list)
@@ -508,6 +546,7 @@ class SerialThread(QtCore.QThread):
         #######set the layout in the tab##########
         lights_tab_widget.setLayout(lights_tab_layout)
 
+    ############Lighting slots#########################################################################
     def get_settle_lights_settings(self):
         ####make the custom colors from the saved settings#####
         self.settle_lights_r_pattern_button.setCurrentIndex(self.settings.value("lights/settle_lights/box_id_" +
@@ -617,7 +656,9 @@ class SerialThread(QtCore.QThread):
         self.start_lights_l_button.setStyleSheet("QWidget { background-color: %s}" % self.start_lights_l_color.name())
         self.start_lights_lb_button.setStyleSheet("QWidget { background-color: %s}" % self.start_lights_lb_color.name())
 
+    ####This function selects the color and updates the GUI####
     def color_select_slot(self, lights, hue, sat, val, button):
+        self.settings_flag = True
         temp_colorbox = QtWidgets.QColorDialog()
         temp_color = temp_colorbox.getColor()
         button.setStyleSheet("QWidget { background-color: %s}" % temp_color.name())
@@ -626,11 +667,13 @@ class SerialThread(QtCore.QThread):
         self.settings.setValue(("lights/" + lights + "/box_id_" + str(self.box_id) + sat + ""), int(temp[1]))
         self.settings.setValue(("lights/" + lights + "/box_id_" + str(self.box_id) + val + ""), int(temp[2]))
 
+    ####Select a pattern####
     def pattern_select_slot(self, lights, pat, button):
+        self.settings_flag = True
         self.settings.setValue(("lights/" + lights + "/box_id_" + str(self.box_id) + pat + ""),
                                button)
 
-#################CONTROL TAB GUI ############################################################
+#################Build the Control Tab #################################################################################
     def make_control_tab(self):
         ##Setting the layout
         control_tab_widget = QtWidgets.QWidget()
@@ -646,7 +689,7 @@ class SerialThread(QtCore.QThread):
         self.concentrate_box.setText(self.settings.value("concentrate/box_id_" + str(self.box_id)))
         control_start_button = QtWidgets.QPushButton("Start")
         control_start_all_button = QtWidgets.QPushButton("Start All")
-        control_start_group_button = QtWidgets.QPushButton("Save Settings")
+        control_start_group_button = QtWidgets.QPushButton("UPDATE BOX " + str(self.box_id))
         control_abort_button = QtWidgets.QPushButton("Abort")
         control_abort_all_button = QtWidgets.QPushButton("Abort All")
         ##Adding the buttons to the layout
@@ -670,12 +713,13 @@ class SerialThread(QtCore.QThread):
         control_form_layout.setVerticalSpacing(20)
         control_tab_widget.setLayout(control_form_layout)
 
-###############################control functions################################################
-
+    ###########################control slots################################################
     def control_id_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("control_number/box_id_" + str(self.box_id)), self.control_id_box.toPlainText())
 
     def concentrate_slot(self):
+        self.settings_flag = True
         self.settings.setValue(("concentrate/box_id_" + str(self.box_id)), self.concentrate_box.toPlainText())
 
     def update_status_label(self, status):
@@ -683,29 +727,41 @@ class SerialThread(QtCore.QThread):
         self.current_state_show.setText(self.current_state_label)
 
     def button_one_slot(self):
-        if self.control_id_box.toPlainText() == "ENTER GENERATION":
+        if self.settings_flag:
             msg = QtWidgets.QMessageBox()
-            msg.setInformativeText("Please enter a generation ID.")
-            msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
-            msg.exec()
-        elif self.concentrate_box.toPlainText() == "ENTER CONCENTRATE":
-            msg = QtWidgets.QMessageBox()
-            msg.setInformativeText("Please enter a concentration.")
+            msg.setInformativeText("Please update Shuttlebox " + str(self.box_id) + "before starting.")
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
             msg.exec()
         else:
-            self.results_class.results_init(self.box_id)
-            self.send_to_box(self.box_id)
-            self.send_to_box(",")
-            self.send_to_box("250")
-            print("Start pushed")
-            self.msleep(50)
-        self.counter = self.counter + 1
-        if int(self.counter) > int(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"))):
-            self.counter = 1
-        print(self.counter)
-        self.results = [int(self.counter), 18, 28, 38, 48, 58, 68, 78, 88]
-        self.results_class.results_to_array(self.results, self.box_id)
+            if self.current_state != 0:
+                m = QtWidgets.QMessageBox()
+                m.setInformativeText("Error: Cannot update Shuttlebox while trial is running.")
+                m.exec()
+            elif self.control_id_box.toPlainText() == "ENTER GENERATION":
+                msg = QtWidgets.QMessageBox()
+                msg.setInformativeText("Please enter a generation ID.")
+                msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+                msg.exec()
+            elif self.concentrate_box.toPlainText() == "ENTER CONCENTRATE":
+                msg = QtWidgets.QMessageBox()
+                msg.setInformativeText("Please enter a concentration.")
+                msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+                msg.exec()
+            else:
+                self.results_class.results_init(self.box_id)
+                self.send_to_box(self.box_id)
+                self.send_to_box(",")
+                self.send_to_box("250")
+                print("Start pushed")
+                self.msleep(50)
+            ######################This section is to test results behavior, remove before launch!############
+            self.counter = self.counter + 1
+            print(self.counter)
+            if int(self.counter) == int(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"))):
+                print("this happens")
+                self.results = [int(self.counter), 18, 28, 38, 48, 58, 68, 78, 88]
+                self.results_class.results_to_array(self.results, self.box_id)
+                self.counter = 0
 
     def button_two_slot(self):
         BoxHandler.start_all_boxes_manager = True
@@ -732,23 +788,33 @@ class SerialThread(QtCore.QThread):
 
     def on_start_all_boxes(self):
         print("on start all " + str(self.box_id))
-        # if self.control_id_box.toPlainText() == "ENTER GENERATION":
+        ###############################################RESTORE THIS SECTION BEFORE LAUNCH###############################
+        # if self.settings_flag:
         #     msg = QtWidgets.QMessageBox()
-        #     msg.setInformativeText("Please enter a generation ID for box " + str(self.box_id))
+        #     msg.setInformativeText("Please update Shuttlebox " + str(self.box_id) + " before starting.")
         #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
         #     msg.exec()
-        # elif self.concentrate_box.toPlainText() == "ENTER CONCENTRATE":
-        #     msg = QtWidgets.QMessageBox()
-        #     msg.setInformativeText("Please enter a concentration for box " + str(self.box_id))
-        #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
-        #     msg.exec()
-        # else:
-        #     self.results_class.results_init(self.box_id)
-        #     self.send_to_box(self.box_id)
-        #     self.send_to_box(",")
-        #     self.send_to_box("250")
-        #     print("Start all")
-        #     self.msleep(50)
+            # if self.control_id_box.toPlainText() == "ENTER GENERATION":
+            #     msg = QtWidgets.QMessageBox()
+            #     msg.setInformativeText("Please enter a generation ID for box " + str(self.box_id))
+            #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+            #     msg.exec()
+            # elif self.concentrate_box.toPlainText() == "ENTER CONCENTRATE":
+            #     msg = QtWidgets.QMessageBox()
+            #     msg.setInformativeText("Please enter a concentration for box " + str(self.box_id))
+            #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+            #     msg.exec()
+            # elif self.current_state != 0:
+            #     m = QtWidgets.QMessageBox()
+            #     m.setInformativeText("Error: Cannot update Shuttlebox while trial is running.")
+            #     m.exec()
+            # else:
+            #     self.results_class.results_init(self.box_id)
+            #     self.send_to_box(self.box_id)
+            #     self.send_to_box(",")
+            #     self.send_to_box("250")
+            #     print("Start all")
+            #     self.msleep(50)
 
     def on_abort_all_boxes(self):
         print("abort all from " + str(self.box_id))
@@ -758,24 +824,6 @@ class SerialThread(QtCore.QThread):
         # print("Abort all")
         # self.msleep(50)
 
-    def on_current_box_id_changed_slot(self, row_id):
-        list_box_id = int(self.id_list_widget.currentItem().text())
-        # list_box_id = row_id + 1
-        if list_box_id == self.box_id:
-            layout = self.tab_widget_w.layout()  # type: QtWidgets.QLayout
 
-            for i in reversed(range(layout.count())):
-                widgetToRemove = layout.itemAt(i).widget()
-                # remove it from the layout list
-                layout.removeWidget(widgetToRemove)
-                # remove it from the gui
-                widgetToRemove.setParent(None)
-
-            layout.addWidget(self.make_box_tab_widget(self.tab_widget_w))
-            self.id_list_widget.sortItems()
-            self.tab_flag = 1
-
-    def on_stop_all_threads_slot(self):
-        self.should_run = False
 
 

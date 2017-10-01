@@ -790,7 +790,6 @@ class SerialThread(QtCore.QThread):
                 self.counter = 0
             self.box_handler.send_data(self.results, self.box_id)
 
-
     def button_two_slot(self):
         BoxHandler.start_all_boxes_manager = True
         BoxHandler.starter(self.box_handler)

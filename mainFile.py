@@ -41,6 +41,7 @@ class NewWindow(QtWidgets.QMainWindow):
 
         self.settings_class = ShuttleSettings(self)
         self.box_handler_class = BoxHandler(self)
+        self.results = BoxResults(self, self.box_handler_class)
         self.welcome.exec()
 
     def welcome_slot(self):

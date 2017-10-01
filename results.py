@@ -65,12 +65,12 @@ class BoxResults(QtCore.QObject):
 
     def results_to_array(self, results_array, box_id):
     ####update the the arrays with the test results as they arrive####
-        for i in range(0, 8):
+        for i in range(1, 8):
             self.data_dictionary[box_id][i].append(results_array[i])
         m = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
         print("m = " + str(m) + "res = " + str(results_array[0]))
         if int(m) == int(results_array[0]):
-            for i in range(0, 8):
+            for i in range(1, 8):
                 self.save_results(box_id, self.data_dictionary[box_id][i], self.file_names[i])
                 self.data_dictionary[box_id][i] = self.update_results_array()
         print("test")

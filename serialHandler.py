@@ -63,6 +63,7 @@ class SerialThread(QtCore.QThread):
                             #self.id_list_widget.show()
                         if "u: " in self.in_buffer:
                             self.update_flag = True
+                            self.box_handler.send_data_init(self.box_id)
                         if "Box ID: " in self.in_buffer:
                             self.box_id_found_flag = True
                             self.box_id = int(self.in_buffer.split(": ")[1])
@@ -180,7 +181,6 @@ class SerialThread(QtCore.QThread):
             pass
             #self.box_tab_widget.hide()
             #self.id_list_widget.hide()
-        #self.results_class.results_init(self.box_id)
         return self.box_tab_widget
 
 ###############Build the Admin Tab######################################################################################

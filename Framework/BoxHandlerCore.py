@@ -11,6 +11,7 @@ class BoxHandler(QtCore.QThread):
     start_all_boxes_signal = QtCore.pyqtSignal()
     abort_all_boxes_signal = QtCore.pyqtSignal()
     send_data_signal = QtCore.pyqtSignal(list, int)
+    send_data_init_signal = QtCore.pyqtSignal(int)
 
     def __init__(self, main_window):
         super(BoxHandler, self).__init__()
@@ -25,6 +26,7 @@ class BoxHandler(QtCore.QThread):
         self.should_run = True
         self.__connect_signals_to_slots()
         self.setup_gui_elements()
+        self.results = results.BoxResults(self.main_window, self)
         self.start()
 
     def __connect_signals_to_slots(self):
@@ -59,7 +61,6 @@ class BoxHandler(QtCore.QThread):
 
         self.list_w.setCurrentRow(0)
         self.msleep(10)
-        self.results = results.BoxResults(self.main_window, self)
 
     def setup_gui_elements(self):
         self.id_list_widget.setSortingEnabled(True)
@@ -84,5 +85,9 @@ class BoxHandler(QtCore.QThread):
     def send_data(self, data, box_id):
         print("box manager got: ", data, box_id)
         self.send_data_signal.emit(data, box_id)
+
+    def send_data_init(self, box_id):
+        print("box manager init: box " + str(box_id))
+        self.send_data_init_signal.emit(box_id)
 
 

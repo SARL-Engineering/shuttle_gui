@@ -8,7 +8,6 @@ from settings_core import ShuttleSettings
 
 class SerialThread(QtCore.QThread):
     change_label_signal = QtCore.pyqtSignal(str)
-    data_send_signal = QtCore.pyqtSignal(list, int)
 
     def __init__(self, main_window, box_handler, comport_string):
         super(SerialThread, self).__init__()
@@ -127,6 +126,7 @@ class SerialThread(QtCore.QThread):
                 self.update_flag = False
                 self.settings_core.update_settings(self.box_id)
                 #self.results_class.results_init(self.box_id)
+                self.box_handler.send_data_init(self.box_id)
                 self.send_to_box(self.box_id)
                 self.send_to_box(",")
                 self.send_to_box("249")
@@ -163,6 +163,7 @@ class SerialThread(QtCore.QThread):
             self.update_status_label(int(self.current_state))
             self.id_list_widget.sortItems()
             self.tab_flag = 1
+            self.box_handler.send_data_init(int(row_id + 1))
 
     def on_stop_all_threads_slot(self):
         self.should_run = False
@@ -775,6 +776,7 @@ class SerialThread(QtCore.QThread):
                 msg.exec()
             else:
                 #self.results_class.results_init(self.box_id)
+                self.box_handler.send_data_init(self.box_id)
                 self.send_to_box(self.box_id)
                 self.send_to_box(",")
                 self.send_to_box("250")
@@ -814,7 +816,6 @@ class SerialThread(QtCore.QThread):
 
     def on_start_all_boxes(self):
         print("on start all " + str(self.box_id))
-
         ###############################################RESTORE THIS SECTION BEFORE LAUNCH###############################
         # if self.settings_flag:
         #     msg = QtWidgets.QMessageBox()
@@ -843,12 +844,12 @@ class SerialThread(QtCore.QThread):
             #     print("Start all")
             #     self.msleep(50)
         ######################This section is to test results behavior, remove before launch!############
+        ######################This section is to test results behavior, remove before launch!############
         self.counter = self.counter + 1
         self.results = [int(self.counter), 18, 28, 38, 48, 58, 68, 78, 88]
         print(self.counter)
         if int(self.counter) == int(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"))):
             self.counter = 0
-        #self.results_class.results_to_array(self.results, self.box_id)
         self.box_handler.send_data(self.results, self.box_id)
 
     def on_abort_all_boxes(self):

@@ -34,7 +34,7 @@ class ShuttleSettings(QtCore.QObject):
 
     def load_settings(self):
         self.boxes_configs_array.append("0 spot")
-        for box in range(1, 48):
+        for box in range(1, 49):
             self.settings.setValue(("control_number/box_id_" + str(box)), self.settings.value((
                 "control_number/box_id_" + str(box)), "ENTER GENERATION"))
             self.settings.setValue(("concentrate/box_id_" + str(box)), self.settings.value(("concentrate/box_id_" +
@@ -91,7 +91,7 @@ class ShuttleSettings(QtCore.QObject):
 
     def load_settle_lights(self):
         self.boxes_settle_lights_array.append("0 spot")
-        for box in range(1, 48):
+        for box in range(1, 49):
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_pattern"), self.settings.value((
                 "lights/settle_lights/box_id_" + str(box) + "right_pattern"), 4))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((
@@ -174,7 +174,7 @@ class ShuttleSettings(QtCore.QObject):
     def load_trial_lights(self):
 
         self.boxes_trial_lights_array.append("0 spot")
-        for box in range (1, 48):
+        for box in range (1, 49):
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_pattern"), self.settings.value((
                 "lights/trial_lights/box_id_" + str(box) + "right_pattern"), 4))
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((
@@ -256,7 +256,7 @@ class ShuttleSettings(QtCore.QObject):
 
     def load_start_lights(self):
         self.boxes_start_lights_array.append("0 spot")
-        for box in range(1, 48):
+        for box in range(1, 49):
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_pattern"), self.settings.value((
                 "lights/start_lights/box_id_" + str(box) + "right_pattern"), 4))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((
@@ -341,7 +341,7 @@ class ShuttleSettings(QtCore.QObject):
         return Result
 
     def restore_all_defaults(self):
-        for box in range(1, 48):
+        for box in range(1, 49):
             ##############Control######################
             self.settings.setValue(("control_number/box_id_" + str(box)), "ENTER GENERATION")
             self.settings.setValue(("concentrate/box_id_" + str(box)), "ENTER CONCENTRATE")
@@ -600,7 +600,7 @@ class ShuttleSettings(QtCore.QObject):
         self.boxes_start_lights_array = self.boxes_start_lights_box_array
 
     def apply_all_settings(self, box_id):
-        for box in range(1, 48):
+        for box in range(1, 49):
             self.settings.setValue(("control_number/box_id_" + str(box)), self.settings.value((
                 "control_number/box_id_" + str(box_id)), "ENTER GENERATION"))
             self.settings.setValue(("concentrate/box_id_" + str(box)), self.settings.value(("concentrate/box_id_" +

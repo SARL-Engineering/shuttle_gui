@@ -23,27 +23,33 @@ class BoxResults(QtCore.QObject):
         self.counter = 0
         self.res = []
         self.box_handler = box_handler
-        for i in range(1, 48):
+        self.file_names = ["0 spot dummy", "/acceptSide.txt", "/seekSideSwaps.txt", "/numSideSwaps.txt",
+                           "/timeToAccept.txt", "/rejectTime.txt", "/acceptTime.txt", "/shockModeTime.txt",
+                           "/shockedTime.txt"]
+        for i in range(1, 49):
             self.data_dictionary[i] = [self.acceptSide, self.seekSideSwaps, self.numSideSwaps, self.timeToAccept,
                                        self.rejectTime, self.acceptTime, self.shockModeTime, self.shockedTime]
         self.box_handler.send_data_signal.connect(self.results_to_array, QtCore.Qt.QueuedConnection)
-        self.box_handler.send_data_signal.connect(self.res_test, QtCore.Qt.QueuedConnection)
+        self.box_handler.send_data_init_signal.connect(self.results_init, QtCore.Qt.QueuedConnection)
+        #self.box_handler.send_data_signal.connect(self.res_test, QtCore.Qt.QueuedConnection)
         self.m = 0
 
-
-
     def results_init(self, box_id):
-        ####initialize the arrays, used for clearing old data as well####
-        self.acceptSide = self.fill_arrays(box_id)
-        self.seekSideSwaps = self.fill_arrays(box_id)
-        self.numSideSwaps = self.fill_arrays(box_id)
-        self.timeToAccept = self.fill_arrays(box_id)
-        self.rejectTime = self.fill_arrays(box_id)
-        self.acceptTime = self.fill_arrays(box_id)
-        self.shockModeTime = self.fill_arrays(box_id)
-        self.shockedTime = self.fill_arrays(box_id)
-        ####make the file paths if the do not exist already####
+        for i in range(0, 8):
+            self.data_dictionary[box_id][i] = self.fill_arrays(box_id)
         self.make_folders(box_id)
+    # def results_init(self, box_id):
+    #     ####initialize the arrays, used for clearing old data as well####
+    #     self.acceptSide = self.fill_arrays(box_id)
+    #     self.seekSideSwaps = self.fill_arrays(box_id)
+    #     self.numSideSwaps = self.fill_arrays(box_id)
+    #     self.timeToAccept = self.fill_arrays(box_id)
+    #     self.rejectTime = self.fill_arrays(box_id)
+    #     self.acceptTime = self.fill_arrays(box_id)
+    #     self.shockModeTime = self.fill_arrays(box_id)
+    #     self.shockedTime = self.fill_arrays(box_id)
+    #     ####make the file paths if the do not exist already####
+    #     self.make_folders(box_id)
 
     def fill_arrays(self, box_id):
         temp_array = [self.settings.value("control_number/box_id_" + str(box_id)), self.settings.value("concentrate/box_id_" +
@@ -58,36 +64,49 @@ class BoxResults(QtCore.QObject):
             os.makedirs(path)
 
     def results_to_array(self, results_array, box_id):
-        ####update the the arrays with the test results as they arrive####
-        self.acceptSide.append(results_array[1])
-        self.seekSideSwaps.append(results_array[2])
-        self.numSideSwaps.append(results_array[3])
-        self.timeToAccept.append(results_array[4])
-        self.rejectTime.append(results_array[5])
-        self.acceptTime.append(results_array[6])
-        self.shockModeTime.append(results_array[7])
-        self.shockedTime.append(results_array[8])
+    ####update the the arrays with the test results as they arrive####
+        for i in range(0, 8):
+            self.data_dictionary[box_id][i].append(results_array[i])
         m = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
-        print(self.acceptSide)
         print("m = " + str(m) + "res = " + str(results_array[0]))
         if int(m) == int(results_array[0]):
-            #####If the test is over print the results to the files and clear the arrays for new data####
-            self.save_results(box_id, self.acceptSide, "/acceptSide.txt")
-            self.acceptSide = self.update_results_array()
-            self.save_results(box_id, self.seekSideSwaps, "/seekSideSwaps.txt")
-            self.seekSideSwaps = self.update_results_array()
-            self.save_results(box_id, self.numSideSwaps, "/numSideSwaps.txt")
-            self.numSideSwaps = self.update_results_array()
-            self.save_results(box_id, self.timeToAccept, "/timeToAccept.txt")
-            self.timeToAccept = self.update_results_array()
-            self.save_results(box_id, self.rejectTime, "/rejectTime.txt")
-            self.rejectTime = self.update_results_array()
-            self.save_results(box_id, self.acceptTime, "/acceptTime.txt")
-            self.acceptTime = self.update_results_array()
-            self.save_results(box_id, self.shockModeTime, "/shockModeTime.txt")
-            self.shockModeTime = self.update_results_array()
-            self.save_results(box_id, self.shockedTime, "/shockedTime.txt")
-            self.shockedTime = self.update_results_array()
+            for i in range(0, 8):
+                self.save_results(box_id, self.data_dictionary[box_id][i], self.file_names[i])
+                self.data_dictionary[box_id][i] = self.update_results_array()
+        print("test")
+    #####If the test is over print the results to the files and clear the arrays for new data####
+
+    # def results_to_array(self, results_array, box_id):
+    #     ####update the the arrays with the test results as they arrive####
+    #     self.acceptSide.append(results_array[1])
+    #     self.seekSideSwaps.append(results_array[2])
+    #     self.numSideSwaps.append(results_array[3])
+    #     self.timeToAccept.append(results_array[4])
+    #     self.rejectTime.append(results_array[5])
+    #     self.acceptTime.append(results_array[6])
+    #     self.shockModeTime.append(results_array[7])
+    #     self.shockedTime.append(results_array[8])
+    #     m = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
+    #     print(self.acceptSide)
+    #     print("m = " + str(m) + "res = " + str(results_array[0]))
+    #     if int(m) == int(results_array[0]):
+    #         #####If the test is over print the results to the files and clear the arrays for new data####
+    #         self.save_results(box_id, self.acceptSide, "/acceptSide.txt")
+    #         self.acceptSide = self.update_results_array()
+    #         self.save_results(box_id, self.seekSideSwaps, "/seekSideSwaps.txt")
+    #         self.seekSideSwaps = self.update_results_array()
+    #         self.save_results(box_id, self.numSideSwaps, "/numSideSwaps.txt")
+    #         self.numSideSwaps = self.update_results_array()
+    #         self.save_results(box_id, self.timeToAccept, "/timeToAccept.txt")
+    #         self.timeToAccept = self.update_results_array()
+    #         self.save_results(box_id, self.rejectTime, "/rejectTime.txt")
+    #         self.rejectTime = self.update_results_array()
+    #         self.save_results(box_id, self.acceptTime, "/acceptTime.txt")
+    #         self.acceptTime = self.update_results_array()
+    #         self.save_results(box_id, self.shockModeTime, "/shockModeTime.txt")
+    #         self.shockModeTime = self.update_results_array()
+    #         self.save_results(box_id, self.shockedTime, "/shockedTime.txt")
+    #         self.shockedTime = self.update_results_array()
 
     def save_results(self, box_id, results_array, file_ending):
         ####passing in the array to be saved, and updating the timestamps and settings####
@@ -120,6 +139,6 @@ class BoxResults(QtCore.QObject):
         ####update a specific array with the generation data#####
         return self.res
 
-    def res_test(self, data, box_id):
-        print("res test", data, box_id)
+    def res_test(self, box_id):
+        print("res test", box_id)
 

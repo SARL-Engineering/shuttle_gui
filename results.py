@@ -1,13 +1,17 @@
 from PyQt5 import QtCore
+from dataWriter import DataWrite
 import os
 
 
 class BoxResults(QtCore.QObject):
-    data_ready_signal = QtCore.pyqtSignal(str)
+    data_ready_signal = QtCore.pyqtSignal(list)
 
-    def __init__(self, main_window):
+    def __init__(self, main_window, box_handler):
+        super(BoxResults, self).__init__()
         self.main_window = main_window
         self.settings = QtCore.QSettings()
+        self.data_writer_class = DataWrite(self.main_window, self)
+        self.data_dictionary = {}
         self.acceptSide = []
         self.seekSideSwaps = []
         self.numSideSwaps = []
@@ -18,6 +22,15 @@ class BoxResults(QtCore.QObject):
         self.shockedTime = []
         self.counter = 0
         self.res = []
+        self.box_handler = box_handler
+        for i in range(1, 48):
+            self.data_dictionary[i] = [self.acceptSide, self.seekSideSwaps, self.numSideSwaps, self.timeToAccept,
+                                       self.rejectTime, self.acceptTime, self.shockModeTime, self.shockedTime]
+        self.box_handler.send_data_signal.connect(self.results_to_array, QtCore.Qt.QueuedConnection)
+        self.box_handler.send_data_signal.connect(self.res_test, QtCore.Qt.QueuedConnection)
+        self.m = 0
+
+
 
     def results_init(self, box_id):
         ####initialize the arrays, used for clearing old data as well####
@@ -55,6 +68,7 @@ class BoxResults(QtCore.QObject):
         self.shockModeTime.append(results_array[7])
         self.shockedTime.append(results_array[8])
         m = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
+        print(self.acceptSide)
         print("m = " + str(m) + "res = " + str(results_array[0]))
         if int(m) == int(results_array[0]):
             #####If the test is over print the results to the files and clear the arrays for new data####
@@ -83,20 +97,19 @@ class BoxResults(QtCore.QObject):
         self.res[2] = ("Shuttlebox_" + str(box_id) + "_on_" +
                               QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate))
         print("writing string to file: ", self.res)
-        self.data_ready_signal.emit(str(self.res))
-        # ####Write the data to the files in csv format, each newline is a new test####
-        # file = open("C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/" + self.settings.value(
-        #     "control_number/box_id_" + str(box_id)) + file_ending, "a")
-        # m = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
-        # ####The first three spots in the array are the generation data, the rest is length "m" dep. on number of trials#
-        # for i in range(0, (3 + int(m))):
-        #     if i == (2 + int(m)):
-        #         file.write(str(self.res[i]))
-        #         file.write("\n")
-        #     else:
-        #         file.write(str(self.res[i]))
-        #         file.write(",")
-        # file.close()
+        ####Write the data to the files in csv format, each newline is a new test####
+        file = open("C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/" + self.settings.value(
+            "control_number/box_id_" + str(box_id)) + file_ending, "a")
+        m = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
+        ####The first three spots in the array are the generation data, the rest is length "m" dep. on number of trials#
+        for i in range(0, (3 + int(m))):
+            if i == (2 + int(m)):
+                file.write(str(self.res[i]))
+                file.write("\n")
+            else:
+                file.write(str(self.res[i]))
+                file.write(",")
+        file.close()
         ####clear the temp file and reset the generation data
         self.res = []
         self.res = [self.settings.value("control_number/box_id_" + str(box_id)), self.settings.value(
@@ -106,3 +119,7 @@ class BoxResults(QtCore.QObject):
     def update_results_array(self):
         ####update a specific array with the generation data#####
         return self.res
+
+    def res_test(self, data, box_id):
+        print("res test", data, box_id)
+

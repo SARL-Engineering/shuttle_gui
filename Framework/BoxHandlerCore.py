@@ -2,6 +2,7 @@ from PyQt5 import QtCore, QtWidgets
 import serial
 from serial.tools.list_ports import comports
 import serialHandler
+import results
 
 
 class BoxHandler(QtCore.QThread):
@@ -9,6 +10,7 @@ class BoxHandler(QtCore.QThread):
     start_all_threads = QtCore.pyqtSignal()
     start_all_boxes_signal = QtCore.pyqtSignal()
     abort_all_boxes_signal = QtCore.pyqtSignal()
+    send_data_signal = QtCore.pyqtSignal(list, int)
 
     def __init__(self, main_window):
         super(BoxHandler, self).__init__()
@@ -22,7 +24,6 @@ class BoxHandler(QtCore.QThread):
         self.list_w = self.main_window.id_list_widget  # type: QtWidgets.QListWidget
         self.should_run = True
         self.__connect_signals_to_slots()
-
         self.setup_gui_elements()
         self.start()
 
@@ -58,6 +59,7 @@ class BoxHandler(QtCore.QThread):
 
         self.list_w.setCurrentRow(0)
         self.msleep(10)
+        self.results = results.BoxResults(self.main_window, self)
 
     def setup_gui_elements(self):
         self.id_list_widget.setSortingEnabled(True)
@@ -78,4 +80,9 @@ class BoxHandler(QtCore.QThread):
         self.should_run = False
         for thread in self.thread_instances:
             thread.wait()
+
+    def send_data(self, data, box_id):
+        print("box manager got: ", data, box_id)
+        self.send_data_signal.emit(data, box_id)
+
 

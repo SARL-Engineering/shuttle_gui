@@ -8,6 +8,7 @@ from settings_core import ShuttleSettings
 
 class SerialThread(QtCore.QThread):
     change_label_signal = QtCore.pyqtSignal(str)
+    data_send_signal = QtCore.pyqtSignal(list, int)
 
     def __init__(self, main_window, box_handler, comport_string):
         super(SerialThread, self).__init__()
@@ -41,7 +42,7 @@ class SerialThread(QtCore.QThread):
         self.__connect_signals_to_slots()
         self.settings = QtCore.QSettings()
         self.settings_core = ShuttleSettings(main_window)
-        self.results_class = BoxResults(main_window)
+        #self.results_class = BoxResults(main_window, self.box_handler)
         self.counter = 0 #remove this before launch
         self.start()
 
@@ -77,8 +78,9 @@ class SerialThread(QtCore.QThread):
                             self.results.pop()
                             self.results.pop(0)
                             self.results.pop(0)
+                            self.results.pop(0)
                             print("popped results", self.results)
-                            self.results_class.results_to_file(self.results)
+                            self.box_handler.send_data(self.results, self.box_id)
                             self.results_flag = 1
                         if "x: " in self.in_buffer:
                             print("sending configs to box " + str(self.box_id))
@@ -124,7 +126,7 @@ class SerialThread(QtCore.QThread):
                                    ", PLEASE WAIT (This may take a moment)")
                 self.update_flag = False
                 self.settings_core.update_settings(self.box_id)
-                self.results_class.results_init(self.box_id)
+                #self.results_class.results_init(self.box_id)
                 self.send_to_box(self.box_id)
                 self.send_to_box(",")
                 self.send_to_box("249")
@@ -177,7 +179,7 @@ class SerialThread(QtCore.QThread):
             pass
             #self.box_tab_widget.hide()
             #self.id_list_widget.hide()
-        self.results_class.results_init(self.box_id)
+        #self.results_class.results_init(self.box_id)
         return self.box_tab_widget
 
 ###############Build the Admin Tab######################################################################################
@@ -772,7 +774,7 @@ class SerialThread(QtCore.QThread):
                 msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
                 msg.exec()
             else:
-                self.results_class.results_init(self.box_id)
+                #self.results_class.results_init(self.box_id)
                 self.send_to_box(self.box_id)
                 self.send_to_box(",")
                 self.send_to_box("250")
@@ -783,9 +785,8 @@ class SerialThread(QtCore.QThread):
             self.results = [int(self.counter), 18, 28, 38, 48, 58, 68, 78, 88]
             print(self.counter)
             if int(self.counter) == int(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"))):
-                print("this happens")
                 self.counter = 0
-            self.results_class.results_to_array(self.results, self.box_id)
+            self.box_handler.send_data(self.results, self.box_id)
 
 
     def button_two_slot(self):
@@ -841,11 +842,19 @@ class SerialThread(QtCore.QThread):
             #     self.send_to_box("250")
             #     print("Start all")
             #     self.msleep(50)
+        ######################This section is to test results behavior, remove before launch!############
+        self.counter = self.counter + 1
+        self.results = [int(self.counter), 18, 28, 38, 48, 58, 68, 78, 88]
+        print(self.counter)
+        if int(self.counter) == int(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"))):
+            self.counter = 0
+        #self.results_class.results_to_array(self.results, self.box_id)
+        self.box_handler.send_data(self.results, self.box_id)
 
     def on_abort_all_boxes(self):
         print("abort all from " + str(self.box_id))
-        # self.send_to_box(self.box_id)
-        # self.send_to_box(",")
-        # self.send_to_box("254")
-        # print("Abort all")
-        # self.msleep(50)
+        self.send_to_box(self.box_id)
+        self.send_to_box(",")
+        self.send_to_box("248")
+        print("Abort all")
+        self.msleep(50)

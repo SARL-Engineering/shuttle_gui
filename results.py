@@ -3,6 +3,7 @@ import os
 
 
 class BoxResults(QtCore.QObject):
+    data_ready_signal = QtCore.pyqtSignal(str)
 
     def __init__(self, main_window):
         self.main_window = main_window
@@ -82,19 +83,20 @@ class BoxResults(QtCore.QObject):
         self.res[2] = ("Shuttlebox_" + str(box_id) + "_on_" +
                               QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate))
         print("writing string to file: ", self.res)
-        ####Write the data to the files in csv format, each newline is a new test####
-        file = open("C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/" + self.settings.value(
-            "control_number/box_id_" + str(box_id)) + file_ending, "a")
-        m = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
-        ####The first three spots in the array are the generation data, the rest is length "m" dep. on number of trials#
-        for i in range(0, (3 + int(m))):
-            if i == (2 + int(m)):
-                file.write(str(self.res[i]))
-                file.write("\n")
-            else:
-                file.write(str(self.res[i]))
-                file.write(",")
-        file.close()
+        self.data_ready_signal.emit(str(self.res))
+        # ####Write the data to the files in csv format, each newline is a new test####
+        # file = open("C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/" + self.settings.value(
+        #     "control_number/box_id_" + str(box_id)) + file_ending, "a")
+        # m = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
+        # ####The first three spots in the array are the generation data, the rest is length "m" dep. on number of trials#
+        # for i in range(0, (3 + int(m))):
+        #     if i == (2 + int(m)):
+        #         file.write(str(self.res[i]))
+        #         file.write("\n")
+        #     else:
+        #         file.write(str(self.res[i]))
+        #         file.write(",")
+        # file.close()
         ####clear the temp file and reset the generation data
         self.res = []
         self.res = [self.settings.value("control_number/box_id_" + str(box_id)), self.settings.value(

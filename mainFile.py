@@ -5,6 +5,7 @@ import serialHandler #even though this isnt used, it needs to be here for the pr
 from Framework.BoxHandlerCore import BoxHandler
 from settings_core import ShuttleSettings
 from results import BoxResults
+from dataWriter import DataWrite
 
 UI_FILE_PATH = "arduinoform_corwin.ui"
 
@@ -17,6 +18,7 @@ class NewWindow(QtWidgets.QMainWindow):
         uic.loadUi(UI_FILE_PATH, self)
 
         self.welcome = QtWidgets.QDialog()
+
         self.welcome.setWindowTitle("SARL Shuttlebox Behavior System")
         self.welcome_label = QtWidgets.QLabel(
             "Welcome to the SARL Shuttlebox Behavior System. Brought to you by: \n Aaron Rito," +
@@ -36,9 +38,11 @@ class NewWindow(QtWidgets.QMainWindow):
         self.welcome.setLayout(layout)
         self.welcome.resize(300, 300)
         self.welcome.show()
+
         self.settings_class = ShuttleSettings(self)
         self.box_handler_class = BoxHandler(self)
         self.results_class = BoxResults(self)
+        self.data_writer_class = DataWrite(self)
         self.welcome.exec()
 
     def welcome_slot(self):

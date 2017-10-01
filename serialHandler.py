@@ -547,8 +547,20 @@ class SerialThread(QtCore.QThread):
         lights_tab_layout.addRow("Save Settings", self.light_update_button)
         self.light_update_button.clicked.connect(self.update_settings_slot)
 
-        #######set the layout in the tab##########
-        lights_tab_widget.setLayout(lights_tab_layout)
+        ####layouts####
+        holder_layout = QtWidgets.QHBoxLayout()
+        empty_layout = QtWidgets.QVBoxLayout()
+        dummy_button = QtWidgets.QPushButton()
+        m = QtGui.QColor()
+        m.setHsv(360, 0, 255, 255)
+        dummy_button.setStyleSheet("QWidget { background-color: %s}" % m.name())
+        empty_layout.addWidget(dummy_button)
+        holder_layout.addLayout(lights_tab_layout)
+        holder_layout.addLayout(empty_layout)
+        holder_layout.addSpacing(200)
+        lights_tab_widget.setLayout(holder_layout)
+        dummy_button.hide()
+
 
     ############Lighting slots#########################################################################
     def get_settle_lights_settings(self):
@@ -713,9 +725,17 @@ class SerialThread(QtCore.QThread):
         control_start_group_button.clicked.connect(self.update_settings_slot)
         control_abort_button.clicked.connect(self.button_four_slot)
         control_abort_all_button.clicked.connect(self.abort_all_slot)
-        control_form_layout.setHorizontalSpacing(50)
-        control_form_layout.setVerticalSpacing(20)
-        control_tab_widget.setLayout(control_form_layout)
+        control_form_layout.setHorizontalSpacing(70)
+        control_form_layout.setVerticalSpacing(30)
+        holder_layout = QtWidgets.QHBoxLayout()
+        empty_layout = QtWidgets.QVBoxLayout()
+        dummy_button = QtWidgets.QPushButton("meh?")
+        empty_layout.addWidget(dummy_button)
+        holder_layout.addLayout(control_form_layout)
+        holder_layout.addLayout(empty_layout)
+        holder_layout.addSpacing(200)
+        control_tab_widget.setLayout(holder_layout)
+        dummy_button.hide()
 
     ###########################control slots################################################
     def control_id_slot(self):
@@ -793,6 +813,7 @@ class SerialThread(QtCore.QThread):
 
     def on_start_all_boxes(self):
         print("on start all " + str(self.box_id))
+
         ###############################################RESTORE THIS SECTION BEFORE LAUNCH###############################
         # if self.settings_flag:
         #     msg = QtWidgets.QMessageBox()
@@ -828,7 +849,3 @@ class SerialThread(QtCore.QThread):
         # self.send_to_box("254")
         # print("Abort all")
         # self.msleep(50)
-
-
-
-

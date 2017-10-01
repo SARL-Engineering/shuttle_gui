@@ -50,8 +50,11 @@ class BoxHandler(QtCore.QThread):
 
         for box in self.thread_instances:
             while not box.box_id_found_flag:
-                pass
+                self.msleep(1)
             self.list_w.addItem(str(box.box_id))
+
+        # connect all boxes ready signal to slot
+        # emit signal that boxes are ready
 
         self.list_w.setCurrentRow(0)
         self.msleep(10)

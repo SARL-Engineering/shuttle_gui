@@ -12,12 +12,13 @@ class BoxHandler(QtCore.QThread):
     abort_all_boxes_signal = QtCore.pyqtSignal()
     send_data_signal = QtCore.pyqtSignal(list, int)
     send_data_init_signal = QtCore.pyqtSignal(int)
+    change_font_signal = QtCore.pyqtSignal()
+    boxes_ready_signal = QtCore.pyqtSignal()
 
     def __init__(self, main_window):
         super(BoxHandler, self).__init__()
 
         self.main_window = main_window
-
         # Gui Object References
         self.id_list_widget = self.main_window.id_list_widget  # type: QtWidgets.QListWidget
 
@@ -27,6 +28,7 @@ class BoxHandler(QtCore.QThread):
         self.__connect_signals_to_slots()
         self.setup_gui_elements()
         self.results = results.BoxResults(self.main_window, self)
+        self.box_count = 0
         self.start()
 
     def __connect_signals_to_slots(self):
@@ -89,4 +91,12 @@ class BoxHandler(QtCore.QThread):
         print("box manager init: box " + str(box_id))
         self.send_data_init_signal.emit(box_id)
 
+    def font_signal(self):
+        self.change_font_signal.emit()
+
+    def box_counter(self):
+        self.box_count = self.box_count + 1
+        if self.box_count == len(self.thread_instances):
+            print("all boxes ready")
+            self.boxes_ready_signal.emit()
 

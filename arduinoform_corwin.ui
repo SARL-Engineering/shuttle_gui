@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
+    <width>603</width>
     <height>600</height>
    </rect>
   </property>
@@ -433,7 +433,10 @@
   </property>
   <property name="font">
    <font>
-    <pointsize>11</pointsize>
+    <family>BankGothic Lt BT</family>
+    <pointsize>12</pointsize>
+    <weight>75</weight>
+    <bold>true</bold>
    </font>
   </property>
   <property name="windowTitle">

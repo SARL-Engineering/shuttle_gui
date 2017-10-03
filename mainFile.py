@@ -1,14 +1,23 @@
+# Authors: Aaron Rito, Corwin Perren
+# Date: 10/2/17
+# Project: SARL Shuttlebox Behavior System
+# Client: Oregon State University, SARL lab
+
+########################################################################################################################
+#   Welcome to Tanguay Lab Shuttlebox Behaviour System. This program will detect SARL shuttleboxes and configure them  #
+#   for use. The system is designed to run 48 boxes. In theory, with the right hardware, one may be able to run "n"    #
+#   boxes using this software. (SUCCESSFULLY TESTED 5 SYSTEMS AT ONCE 10/2/17 A.R.)                                    #
+#                                                                                                                      #
+#   For support email: aaronrito@gmail.com                                                                             #
+########################################################################################################################
 import sys
-import time as systime
 import signal
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
-import serialHandler #even though this isnt used, it needs to be here for the program to compile?
+import serialHandler
 from Framework.BoxHandlerCore import BoxHandler
 from settings_core import ShuttleSettings
-from results import BoxResults
-from dataWriter import DataWrite
 
-UI_FILE_PATH = "arduinoform_corwin.ui"
+UI_FILE_PATH = "Shuttlebox_form.ui"
 
 
 class NewWindow(QtWidgets.QMainWindow):
@@ -19,6 +28,7 @@ class NewWindow(QtWidgets.QMainWindow):
         super(NewWindow, self).__init__(parent)
         uic.loadUi(UI_FILE_PATH, self)
 
+        # load the Tanguay logo before starting
         self.welcome_signal.connect(self.welcome_open)
         self.welcome = QtWidgets.QProgressDialog(parent)
         self.welcome.setCancelButton(None)
@@ -41,9 +51,6 @@ class NewWindow(QtWidgets.QMainWindow):
         layout.addWidget(self.imageLabel)
         layout.addWidget(self.welcome_label)
         layout.addSpacing(30)
-        #layout.addWidget(self.welcome_button)
-        #self.welcome_button.clicked.connect(self.welcome_slot)
-
         self.welcome.setLayout(layout)
         self.welcome.resize(850, 500)
         self.welcome.setModal(True)

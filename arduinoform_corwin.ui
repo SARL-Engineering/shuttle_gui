@@ -433,10 +433,10 @@
   </property>
   <property name="font">
    <font>
-    <family>BankGothic Lt BT</family>
-    <pointsize>12</pointsize>
-    <weight>75</weight>
-    <bold>true</bold>
+    <family>BankGothic Md BT</family>
+    <pointsize>13</pointsize>
+    <weight>50</weight>
+    <bold>false</bold>
    </font>
   </property>
   <property name="windowTitle">

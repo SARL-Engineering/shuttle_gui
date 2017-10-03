@@ -34,7 +34,7 @@ class SerialThread(QtCore.QThread):
         self.tab_flag = 0
         self.update_flag = None
         self.settings_flag = False
-        self.arduino = serial.Serial(comport_string, 9600, bytesize=8, stopbits=1, timeout=None)
+        self.arduino = serial.Serial(comport_string, 57600, bytesize=8, stopbits=1, timeout=None)
         self.box_id_found_flag = False
         self.box_id = None
         self.box_tab_widget = None  # type: QtWidgets.QTabWidget
@@ -132,7 +132,8 @@ class SerialThread(QtCore.QThread):
                 self.welcome.setFont(self.my_font)
                 self.welcome.setWindowTitle("SARL Shuttlebox Behavior System")
                 self.welcome_label = QtWidgets.QLabel(
-                    "Please wait while the Shuttlebox is updated. This may take a moment.")
+                    "       Please wait while Shuttlebox " + str(self.box_id) +
+                    " is updated.\n                  This may take a moment....")
                 self.welcome_button = QtWidgets.QPushButton(None)
                 self.welcome_window = QtWidgets.QGraphicsScene()
                 self.welcome_image = QtGui.QImage("logo.png")
@@ -142,9 +143,9 @@ class SerialThread(QtCore.QThread):
                 layout = QtWidgets.QVBoxLayout()
                 layout.addWidget(self.imageLabel)
                 layout.addWidget(self.welcome_label)
-                layout.addSpacing(100)
+                layout.addSpacing(50)
                 self.welcome.setLayout(layout)
-                self.welcome.resize(250, 250)
+                self.welcome.resize(250, 200)
                 self.welcome.setModal(True)
                 self.welcome.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 self.update_flag = False
@@ -156,9 +157,6 @@ class SerialThread(QtCore.QThread):
                 self.send_to_box("249")
                 self.updating_settings_signal_close.connect(self.close_update)
                 self.updating_settings_signal.emit()
-                # while not self.update_flag:
-                #     self.msleep(1)
-                # self.welcome.done(0)
                 msg_box = QtWidgets.QMessageBox()
                 msg_box.setStandardButtons(QtWidgets.QMessageBox.Ok)
                 msg_box.setText("Settings Updated")
@@ -227,8 +225,11 @@ class SerialThread(QtCore.QThread):
         admin_layout.addRow("Restore all defaults", self.restore_all_def_button)
         admin_layout.addRow("Apply settings to all boxes", self.apply_all_button)
         admin_layout.addRow("Preferences", self.options_button)
-        admin_layout.setHorizontalSpacing(200)
-        admin_tab_widget.setLayout(admin_layout)
+        admin_layout.setHorizontalSpacing(10)
+        holder_layout = QtWidgets.QHBoxLayout()
+        holder_layout.addSpacing(220)
+        holder_layout.addLayout(admin_layout)
+        admin_tab_widget.setLayout(holder_layout)
 
     ###########Admin slots##########################################################################
 
@@ -320,7 +321,7 @@ class SerialThread(QtCore.QThread):
 
         # add the elements to the layout
         settings_layout.addRow("Number of Trials", self.n_of_trials_box)
-        settings_layout.addRow("Selection Mode (set to 1)", self.selection_box)
+        settings_layout.addRow("Selection Mode", self.selection_box)
         settings_layout.addRow("Settle Time (m)", self.settle_time_box)
         settings_layout.addRow("Trial Duration (s)", self.trial_duration_box)
         settings_layout.addRow("Seek Time (s)", self.seek_time_box)
@@ -364,10 +365,18 @@ class SerialThread(QtCore.QThread):
         self.success_trials_box.valueChanged.connect(self.success_trials_slot)
         self.update_button.clicked.connect(self.update_settings_slot)
         holder_layout = QtWidgets.QVBoxLayout()
-        holder_layout.addLayout(settings_layout)
-        holder_layout.addSpacing(10)
-        holder_layout.addLayout(settings_layout2)
-        settings_layout2.setHorizontalSpacing(370)
+        top_layout = QtWidgets.QHBoxLayout()
+        bottom_layout = QtWidgets.QHBoxLayout()
+        top_layout.addSpacing(10)
+        top_layout.addLayout(settings_layout)
+        bottom_layout.addSpacing(260)
+        bottom_layout.addLayout(settings_layout2)
+        settings_layout.setHorizontalSpacing(100)
+        settings_layout.setVerticalSpacing(10)
+        settings_layout2.setHorizontalSpacing(100)
+        holder_layout.addLayout(top_layout)
+        holder_layout.addSpacing(200)
+        holder_layout.addLayout(bottom_layout)
         self.settings_tab_widget.setLayout(holder_layout)
 
     ############SETTINGS SLOTS###################################################################################
@@ -594,11 +603,14 @@ class SerialThread(QtCore.QThread):
         holder_layout = QtWidgets.QVBoxLayout()
         holder_layout.addLayout(lights_tab_layout)
         holder_layout.addSpacing(10)
-        holder_layout.addLayout(lights_tab_layout2)
+        bottom_layout = QtWidgets.QHBoxLayout()
+        bottom_layout.addSpacing(260)
+        bottom_layout.addLayout(lights_tab_layout2)
+        holder_layout.addLayout(bottom_layout)
         holder_layout.addSpacing(10)
         lights_tab_layout.setHorizontalSpacing(50)
         lights_tab_layout.setVerticalSpacing(10)
-        lights_tab_layout2.setHorizontalSpacing(350)
+        lights_tab_layout2.setHorizontalSpacing(100)
         lights_tab_layout2.setVerticalSpacing(10)
         lights_tab_widget.setLayout(holder_layout)
 
@@ -771,17 +783,19 @@ class SerialThread(QtCore.QThread):
         control_abort_all_button.clicked.connect(self.abort_all_slot)
         control_form_layout.setHorizontalSpacing(100)
         control_form_layout.setVerticalSpacing(50)
-        control_form_layout2.setHorizontalSpacing(350)
+        control_form_layout2.setHorizontalSpacing(110)
         control_form_layout2.setVerticalSpacing(30)
         dumb_button = QtWidgets.QPushButton()
-        holder_layout = QtWidgets.QHBoxLayout()
+        holder_layout = QtWidgets.QVBoxLayout()
         smaller_holder = QtWidgets.QVBoxLayout()
+        horz_holder = QtWidgets.QHBoxLayout()
         smaller_holder.addLayout(control_form_layout)
         smaller_holder.addSpacing(50)
-        smaller_holder.addLayout(control_form_layout2)
+        horz_holder.addSpacing(260)
+        horz_holder.addLayout(control_form_layout2)
         control_box_layout.addWidget(dumb_button)
         holder_layout.addLayout(smaller_holder)
-        holder_layout.addLayout(control_box_layout)
+        holder_layout.addLayout(horz_holder)
         #holder_layout.addSpacing(270)
         control_tab_widget.setLayout(holder_layout)
         dumb_button.hide()

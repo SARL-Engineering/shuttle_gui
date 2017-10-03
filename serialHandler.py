@@ -835,20 +835,12 @@ class SerialThread(QtCore.QThread):
                 msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
                 msg.exec()
             else:
-                #self.results_class.results_init(self.box_id)
                 self.box_handler.send_data_init(self.box_id)
                 self.send_to_box(self.box_id)
                 self.send_to_box(",")
                 self.send_to_box("250")
                 print("Start pushed")
                 self.msleep(50)
-            ######################This section is to test results behavior, remove before launch!############
-            self.counter = self.counter + 1
-            self.results = [int(self.counter), 18, 28, 38, 48, 58, 68, 78, 88]
-            print(self.counter)
-            if int(self.counter) == int(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"))):
-                self.counter = 0
-            self.box_handler.send_data(self.results, self.box_id)
 
     def button_two_slot(self):
         BoxHandler.start_all_boxes_manager = True

@@ -152,6 +152,8 @@ class SerialThread(QtCore.QThread):
             m = QtWidgets.QMessageBox()
             m.setInformativeText("Are you sure you want to update Shuttlebox " + str(self.box_id))
             m.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+            m.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+            m.setModal(True)
             x = m.exec()
 
             if x == QtWidgets.QMessageBox.Ok:
@@ -898,21 +900,29 @@ class SerialThread(QtCore.QThread):
             msg = QtWidgets.QMessageBox()
             msg.setInformativeText("Please update Shuttlebox " + str(self.box_id) + " before starting.")
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+            msg.setModal(True)
+            msg.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
             msg.exec()
         else:
             if self.current_state != 0:
                 m = QtWidgets.QMessageBox()
                 m.setInformativeText("Error: Cannot update Shuttlebox while trial is running.")
+                msg.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                msg.setModal(True)
                 m.exec()
             elif self.control_id_box.toPlainText() == "ENTER GENERATION":
                 msg = QtWidgets.QMessageBox()
                 msg.setInformativeText("Please enter a generation ID.")
                 msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+                msg.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                msg.setModal(True)
                 msg.exec()
             elif self.concentrate_box.toPlainText() == "ENTER CONCENTRATE":
                 msg = QtWidgets.QMessageBox()
                 msg.setInformativeText("Please enter a concentration.")
                 msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+                msg.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                msg.setModal(True)
                 msg.exec()
             else:
                 self.box_handler.send_data_init(self.box_id)

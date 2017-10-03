@@ -291,6 +291,7 @@ class SerialThread(QtCore.QThread):
     def apply_all_slot(self):
         msg = QtWidgets.QMessageBox()
         msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+        msg.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         msg.setInformativeText("Are you sure you want to apply the settings from Shuttlebox " + str(self.box_id) +
                                " to all Shuttlebox settings?")
         x = msg.exec()
@@ -298,6 +299,7 @@ class SerialThread(QtCore.QThread):
             self.settings_core.apply_all_settings(self.box_id)
             msg = QtWidgets.QMessageBox()
             msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+            msg.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
             msg.setInformativeText("Settings from Shuttlebox " + str(self.box_id) +
                                    " applied to all Shuttlebox settings. " +
                                    "Please restart the program to update the boxes")
@@ -307,12 +309,14 @@ class SerialThread(QtCore.QThread):
         if self.current_state != 0:
             m = QtWidgets.QMessageBox()
             m.setInformativeText("Error: Cannot update Shuttlebox while trial is running.")
+            m.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
             m.exec()
         else:
             msgBox = QtWidgets.QMessageBox()
             msgBox.setText("Are you absolutely sure you want to restore the defaults for ALL Shuttleboxes?")
             msgBox.setStandardButtons(QtWidgets.QMessageBox.RestoreDefaults | QtWidgets.QMessageBox.Cancel)
             msgBox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+            msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
             ret = msgBox.exec_()
             if ret == QtWidgets.QMessageBox.RestoreDefaults:
                 self.settings_core.restore_all_defaults()
@@ -326,18 +330,21 @@ class SerialThread(QtCore.QThread):
                 msgBox.setText("Defaults restored. Please restart the program to update the Shuttleboxes.")
                 msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
                 msgBox.setDefaultButton(QtWidgets.QMessageBox.Ok)
+                msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 msgBox.exec_()
 
     def restore_def_slot(self):
         if self.current_state != 0:
             m = QtWidgets.QMessageBox()
             m.setInformativeText("Error: Cannot update Shuttlebox while trial is running.")
+            m.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
             m.exec()
         else:
             msgbox = QtWidgets.QMessageBox()
             msgbox.setText("Are you absolutely sure you want to restore the defaults for Shuttlebox " + str(self.box_id) +
                            "?")
             msgbox.setStandardButtons(QtWidgets.QMessageBox.RestoreDefaults | QtWidgets.QMessageBox.Cancel)
+            msgbox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
             msgbox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
             ret = msgbox.exec_()
             if ret == QtWidgets.QMessageBox.RestoreDefaults:

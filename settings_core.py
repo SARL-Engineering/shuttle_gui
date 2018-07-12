@@ -51,14 +51,14 @@ class ShuttleSettings(QtCore.QObject):
 
     def load_settings(self):
         self.boxes_configs_array.append("0 spot")
-        for box in range(1, self.number_of_boxes):
+        for box in range(1, 50):
             self.settings.setValue(("control_number/box_id_" + str(box)), self.settings.value((
                 "control_number/box_id_" + str(box)), "ENTER GENERATION"))
             self.settings.setValue(("concentrate/box_id_" + str(box)), self.settings.value(("concentrate/box_id_" +
                                                                                            str(box)),
                                                                                            "ENTER CONCENTRATE"))
             self.settings.setValue(("boxes/box_id_" + str(box) + "/n_of_trials"), self.settings.value((
-                "boxes/box_id_" + str(box) + "/n_of_trials"), box))
+                "boxes/box_id_" + str(box) + "/n_of_trials"), 50))
             self.settings.setValue(("boxes/box_id_" + str(box) + "selection_mode"), self.settings.value((
                 "boxes/box_id_" + str(box) + "selection_mode"), 1))
             self.settings.setValue(("boxes/box_id_" + str(box) + "/settle_time"), self.settings.value((
@@ -76,7 +76,7 @@ class ShuttleSettings(QtCore.QObject):
             self.settings.setValue(("boxes/box_id_" + str(box) + "/fault_out_percent"), self.settings.value((
                 "boxes/box_id_" + str(box) + "/fault_out_percent"), 95))
             self.settings.setValue(("boxes/box_id_" + str(box) + "/shock_voltage"), self.settings.value((
-                "boxes/box_id_" + str(box) + "/shock_voltage"), 20))
+                "boxes/box_id_" + str(box) + "/shock_voltage"), 10))
             self.settings.setValue(("boxes/box_id_" + str(box) + "/shock_interval"), self.settings.value((
                 "boxes/box_id_" + str(box) + "/shock_interval"), 500))
             self.settings.setValue(("boxes/box_id_" + str(box) + "/shock_duration"), self.settings.value((
@@ -97,7 +97,7 @@ class ShuttleSettings(QtCore.QObject):
                                             self.settings.value(("boxes/box_id_" + str(box) + "/fault_out_side"), 8),
                                             self.settings.value(("boxes/box_id_" + str(box) + "/fault_out_percent"),
                                                                 95),
-                                            self.settings.value(("boxes/box_id_" + str(box) + "/shock_voltage"), 20),
+                                            self.settings.value(("boxes/box_id_" + str(box) + "/shock_voltage"), 10),
                                             self.settings.value(("boxes/box_id_" + str(box) + "/shock_interval"), 500),
                                             self.settings.value(("boxes/box_id_" + str(box) + "/shock_duration"), 50),
                                             self.settings.value(("boxes/box_id_" + str(box) + "/success_trials"), 5)]
@@ -191,7 +191,7 @@ class ShuttleSettings(QtCore.QObject):
     def load_trial_lights(self):
 
         self.boxes_trial_lights_array.append("0 spot")
-        for box in range(1, self.number_of_boxes):
+        for box in range(1, 50):
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "right_pattern"), self.settings.value((
                 "lights/trial_lights/box_id_" + str(box) + "right_pattern"), 4))
             self.settings.setValue(("lights/trial_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((
@@ -273,7 +273,7 @@ class ShuttleSettings(QtCore.QObject):
 
     def load_start_lights(self):
         self.boxes_start_lights_array.append("0 spot")
-        for box in range(1, self.number_of_boxes):
+        for box in range(1, 50):
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "right_pattern"), self.settings.value((
                 "lights/start_lights/box_id_" + str(box) + "right_pattern"), 4))
             self.settings.setValue(("lights/start_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((
@@ -351,6 +351,7 @@ class ShuttleSettings(QtCore.QObject):
             self.boxes_start_lights_array.append(self.boxes_start_lights_box_array)
 
     def send_start_lights(self, box_id):
+        print("Len of lights array: %d | requesting: %d" % (len(self.boxes_start_lights_array), box_id))
         return self.boxes_start_lights_array[box_id]
 
     # A handy scaling function similar to C++ function "map"
@@ -360,7 +361,7 @@ class ShuttleSettings(QtCore.QObject):
 
     def restore_all_defaults(self):
         # restore the defaults to all the boxes
-        for box in range(1, self.number_of_boxes):
+        for box in range(1, 50):
             # Control
             self.settings.setValue(("control_number/box_id_" + str(box)), "ENTER GENERATION")
             self.settings.setValue(("concentrate/box_id_" + str(box)), "ENTER CONCENTRATE")
@@ -497,7 +498,7 @@ class ShuttleSettings(QtCore.QObject):
     def update_settings(self, box):
 
         # This function updates the output arrays to be sent to the arduino, updates GUI settings in the registry
-        self.boxes_configs_box_array = [self.settings.value(("boxes/box_id_" + str(box) + "/n_of_trials"), box),
+        self.boxes_configs_box_array = [self.settings.value(("boxes/box_id_" + str(box) + "/n_of_trials"), 50),
                                         self.settings.value(("boxes/box_id_" + str(box) + "selection_mode"), 1),
                                         self.settings.value(("boxes/box_id_" + str(box) + "/settle_time"), 600),
                                         self.settings.value(("boxes/box_id_" + str(box) + "/trial_duration"), 24),
@@ -619,7 +620,7 @@ class ShuttleSettings(QtCore.QObject):
                                              self.settings.value(("lights/start_lights/box_id_" + str(box) +
                                                                   "left_back_sat"), 200), 200, 225, 255, 0, 255,
                                              200, 0, 1]
-        self.boxes_start_lights_array = self.boxes_start_lights_box_array
+        self.boxes_start_lights_array[box] = self.boxes_start_lights_box_array
 
     def apply_all_settings(self, box_id):
         # applies the settings from the box to all connected boxes

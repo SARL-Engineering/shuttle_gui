@@ -66,6 +66,7 @@ class SerialThread(QtCore.QThread):
         self.start()
 
     def __connect_signals_to_slots(self):
+        # GUI's get built here
         self.main_window.id_list_widget.currentRowChanged.connect(self.on_current_box_id_changed_slot)
         self.main_window.stop_all_threads.connect(self.on_stop_all_threads_slot)
         self.box_handler.start_all_boxes_signal.connect(self.on_start_all_boxes)
@@ -114,14 +115,14 @@ class SerialThread(QtCore.QThread):
 
                         if "x: " in self.in_buffer:
                             # The Shuttlebox is requesting it's settings
-                            print("sending configs to box " + str(self.box_id))
                             self.send_to_box(self.settings_core.send_box_configs(self.box_id))
                             self.send_to_box(self.settings_core.send_settle_lights(self.box_id))
                             self.send_to_box(self.settings_core.send_trial_lights(self.box_id))
                             self.send_to_box(self.settings_core.send_start_lights(self.box_id))
 
                             ################ If there is a problem updating boxes, use these to verify the arduino######
-                            # self.send_to_box(" ")
+                            # temp = " "
+                            # self.send_to_box(" 50,1,600,24,12,12,16,8,95,20,500,50,5")
                             # self.send_to_box("50,1,600,24,12,12,16,8,95,20,500,50,5")
                             # self.send_to_box("4,8,100,150,255,0,255,0,50,75,255,0,255,0,200,225,255,0,255,200,0,1")
                             # self.send_to_box("7,3,200,15,12,255,10,255,50,75,0,255,0,255,200,225,0,255,255,200,1,0")
@@ -157,7 +158,7 @@ class SerialThread(QtCore.QThread):
             x = m.exec()
 
             if x == QtWidgets.QMessageBox.Ok:
-                self.counter = 0 ##############remove this before launch#################################
+                #self.counter = 0 ##############remove this before launch#################################
                 # Setup the waiting progress window
                 self.welcome = QtWidgets.QProgressDialog()
                 self.welcome.setCancelButton(None)
@@ -193,6 +194,7 @@ class SerialThread(QtCore.QThread):
                 self.send_to_box(self.box_id)
                 self.send_to_box(",")
                 self.send_to_box("249")
+                print("settings signal sent")
 
                 # Show the progress bar, it's closed by a signal from the serial input on line ..
                 self.updating_settings_signal.emit()
@@ -914,8 +916,8 @@ class SerialThread(QtCore.QThread):
             if self.current_state != 0:
                 m = QtWidgets.QMessageBox()
                 m.setInformativeText("Error: Cannot update Shuttlebox while trial is running.")
-                msg.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-                msg.setModal(True)
+                m.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                m.setModal(True)
                 m.exec()
             elif self.control_id_box.toPlainText() == "ENTER GENERATION":
                 msg = QtWidgets.QMessageBox()
@@ -954,7 +956,7 @@ class SerialThread(QtCore.QThread):
         # abort this box
         self.send_to_box(self.box_id)
         self.send_to_box(",")
-        self.send_to_box("254")
+        self.send_to_box("255")
         print("Abort pushed")
         self.msleep(50)
 
@@ -963,47 +965,47 @@ class SerialThread(QtCore.QThread):
         print("on start all " + str(self.box_id))
 
         ###############################################RESTORE THIS SECTION BEFORE LAUNCH###############################
-        # if self.settings_flag:
-        #     msg = QtWidgets.QMessageBox()
-        #     msg.setInformativeText("Please update Shuttlebox " + str(self.box_id) + " before starting.")
-        #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
-        #     msg.exec()
-            # if self.control_id_box.toPlainText() == "ENTER GENERATION":
-            #     msg = QtWidgets.QMessageBox()
-            #     msg.setInformativeText("Please enter a generation ID for box " + str(self.box_id))
-            #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
-            #     msg.exec()
-            # elif self.concentrate_box.toPlainText() == "ENTER CONCENTRATE":
-            #     msg = QtWidgets.QMessageBox()
-            #     msg.setInformativeText("Please enter a concentration for box " + str(self.box_id))
-            #     msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
-            #     msg.exec()
-            # elif self.current_state != 0:
-            #     m = QtWidgets.QMessageBox()
-            #     m.setInformativeText("Error: Cannot update Shuttlebox while trial is running.")
-            #     m.exec()
-            # else:
-            #     self.results_class.results_init(self.box_id)
-            #     self.send_to_box(self.box_id)
-            #     self.send_to_box(",")
-            #     self.send_to_box("250")
-            #     print("Start all")
-            #     self.msleep(50)
+        if self.settings_flag:
+             msg = QtWidgets.QMessageBox()
+             msg.setInformativeText("Please update Shuttlebox " + str(self.box_id) + " before starting.")
+             msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+             msg.exec()
+             if self.control_id_box.toPlainText() == "ENTER GENERATION":
+                 msg = QtWidgets.QMessageBox()
+                 msg.setInformativeText("Please enter a generation ID for box " + str(self.box_id))
+                 msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+                 msg.exec()
+             elif self.concentrate_box.toPlainText() == "ENTER CONCENTRATE":
+                 msg = QtWidgets.QMessageBox()
+                 msg.setInformativeText("Please enter a concentration for box " + str(self.box_id))
+                 msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+                 msg.exec()
+             elif self.current_state != 0:
+                 m = QtWidgets.QMessageBox()
+                 m.setInformativeText("Error: Cannot update Shuttlebox while trial is running.")
+                 m.exec()
+             else:
+                 self.results_class.results_init(self.box_id)
+                 self.send_to_box(self.box_id)
+                 self.send_to_box(",")
+                 self.send_to_box("250")
+                 print("Start all")
+                 self.msleep(50)
 
         ######################This section is to test results behavior, remove before launch!############
-        self.counter = self.counter + 1
-        self.results = [int(self.counter), 18, 28, 38, 48, 58, 68, 78, 88]
-        print(self.counter)
-        if int(self.counter) == int(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"))):
-            self.counter = 0
-        self.box_handler.send_data(self.results, self.box_id)
+       # self.counter = self.counter + 1
+       # self.results = [int(self.counter), 18, 28, 38, 48, 58, 68, 78, 88]
+       # print(self.counter)
+       # if int(self.counter) == int(self.settings.value(("boxes/box_id_" + str(self.box_id) + "/n_of_trials"))):
+       #     self.counter = 0
+       # self.box_handler.send_data(self.results, self.box_id)
 
     def on_abort_all_boxes(self):
         # This runs after getting the signal from BoxHandler to abort all boxes (can be called from same thread)
         print("abort all from " + str(self.box_id))
         self.send_to_box(self.box_id)
         self.send_to_box(",")
-        self.send_to_box("248")
+        self.send_to_box("255")
         print("Abort all")
         self.msleep(50)
 

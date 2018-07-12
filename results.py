@@ -36,6 +36,7 @@ class BoxResults(QtCore.QObject):
         self.acceptTime = []
         self.shockModeTime = []
         self.shockedTime = []
+        self.setting_log = []
 
         # add the arrays to the dictionary
         for i in range(1, self.settings_class.number_of_boxes):
@@ -57,7 +58,7 @@ class BoxResults(QtCore.QObject):
         self.m = 0
 
     def results_init(self, box_id):
-        # fill the arrays with the CPO and concentrate data
+        # fill the arrays with the generation and concentrate data
         for i in range(0, 8):
             self.data_dictionary[box_id][i] = self.fill_arrays(box_id)
         self.make_folders(box_id)
@@ -67,6 +68,8 @@ class BoxResults(QtCore.QObject):
             "concentrate/box_id_" + str(box_id)), ("Shuttlebox_" + str(box_id) + "_on_" +
                                                    QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate))]
         return temp_array
+
+    # TODO: direct this path to a selected directory
 
     def make_folders(self, box_id):
         path = ("C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/" + self.settings.value(
@@ -78,12 +81,23 @@ class BoxResults(QtCore.QObject):
         # update the the arrays with the test results as they arrive
         for i in range(1, 8):
             self.data_dictionary[box_id][i].append(results_array[i])
-        m = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
-        print("m = " + str(m) + "res = " + str(results_array[0]))
-        if int(m) == int(results_array[0]):
+        num_trials = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
+        print("m = " + str(num_trials) + "res = " + str(results_array[0]))
+        if int(num_trials) == int(results_array[0]):
             for i in range(1, 8):
                 self.data_dictionary[box_id][i] = self.save_results(box_id, self.data_dictionary[box_id][i],
                                                                     self.file_names[i])
+        # make note of the settings used in a log file
+        file = open("C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/settings_log.txt", "a")
+        self.setting_log.append(self.settings_class.send_box_configs(box_id))
+        self.setting_log.append(self.settings_class.send_settle_lights(box_id))
+        self.setting_log.append(self.settings_class.send_trial_lights(box_id))
+        self.setting_log.append(self.settings_class.send_start_lights(box_id))
+        file.write("Shuttlebox_" + str(box_id) + "_on_" +
+                              QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate))
+        file.write(str(self.setting_log) + "\n")
+        file.close()
+        self.setting_log = []
 
     def save_results(self, box_id, results_array, file_ending):
         # passing in the array to be saved, and updating the time-stamps and settings
@@ -97,11 +111,11 @@ class BoxResults(QtCore.QObject):
         # Write the data to the files in csv format, each newline is a new test
         file = open("C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/" + self.settings.value(
             "control_number/box_id_" + str(box_id)) + file_ending, "a")
-        m = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
+        num_trials = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
 
         # The first three spots in the array are the generation data, the rest is length "m" dep. on number of trials
-        for i in range(0, (3 + int(m))):
-            if i == (2 + int(m)):
+        for i in range(0, (3 + int(num_trials))):
+            if i == (2 + int(num_trials)):
                 file.write(str(self.res[i]))
                 file.write("\n")
             else:

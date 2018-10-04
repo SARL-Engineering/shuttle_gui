@@ -956,7 +956,7 @@ class SerialThread(QtCore.QThread):
         # abort this box
         self.send_to_box(self.box_id)
         self.send_to_box(",")
-        self.send_to_box("255")
+        self.send_to_box("254")
         print("Abort pushed")
         self.msleep(50)
 

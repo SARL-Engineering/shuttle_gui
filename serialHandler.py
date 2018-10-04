@@ -3,6 +3,7 @@
 # Project: SARL Shuttlebox Behavior System
 # Client: Oregon State University, SARL lab
 
+
 ########################################################################################################################
 #   This thread is instantiated in the BoxHandlerCore file on line 52. Each instance of this thread will communicate   #
 #   with it's own Shuttlebox, on it's own COM port. To access different threads, call functions in the BoxHandler class#

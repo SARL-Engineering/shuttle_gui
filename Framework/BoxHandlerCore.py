@@ -65,7 +65,7 @@ class BoxHandler(QtCore.QThread):
 
         # !!!!IMPORTANT!!!! For every device found, open a new serial thread.
         for port in ports:
-            if port == "COM1" or port == "COM3":
+            if port == "COM1":  # or port == "COM3":
                 continue
             self.thread_instances.append(serialHandler.SerialThread(self.main_window, self, port))
 

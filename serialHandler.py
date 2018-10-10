@@ -75,6 +75,7 @@ class SerialThread(QtCore.QThread):
 
     def run(self):
         while self.should_run:
+            try:
                 if self.arduino.inWaiting():
                     in_byte = self.arduino.read().decode("utf-8")
                     self.in_buffer += in_byte
@@ -130,8 +131,11 @@ class SerialThread(QtCore.QThread):
 
                         print(self.in_buffer)
                         self.in_buffer = ""
-                self.msleep(50)
-                self.arduino.flush()
+                    self.msleep(50)
+                    self.arduino.flush()
+            except IOError as e:
+                self.should_run = False
+
 
 ########################################################################################################################
 #   These functions support the settings updates, and handle updating the GUI when the list item is changed.           #

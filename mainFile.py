@@ -48,7 +48,7 @@ class NewWindow(QtWidgets.QMainWindow):
             if not os.path.isdir(directory):
                 os.makedirs(directory)
             print("New directory set to: ", directory)
-
+        self.box_handler_class = BoxHandler(self)
         self.welcome_signal.connect(self.welcome_open)
         self.welcome = QtWidgets.QProgressDialog(parent)
         self.welcome.setCancelButton(None)
@@ -81,7 +81,7 @@ class NewWindow(QtWidgets.QMainWindow):
     def run(self):
 
         if self.should_run:
-            self.box_handler_class = BoxHandler(self)
+
             self.box_handler_class.change_font_signal.connect(self.change_font)
             self.box_handler_class.boxes_ready_signal.connect(self.welcome_slot)
             self.welcome_signal.emit()

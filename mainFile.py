@@ -12,12 +12,14 @@
 ########################################################################################################################
 import sys
 import signal
+import os
 from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import serialHandler
 from Framework.BoxHandlerCore import BoxHandler
 from settings_core import ShuttleSettings
 
 UI_FILE_PATH = "Shuttlebox_form.ui"
+UI_LOGO = "logo.png"
 
 
 class NewWindow(QtWidgets.QMainWindow):
@@ -29,6 +31,24 @@ class NewWindow(QtWidgets.QMainWindow):
         uic.loadUi(UI_FILE_PATH, self)
 
         # load the Tanguay logo before starting
+        self.settings_class = ShuttleSettings(self)
+        directory = self.settings_class.settings.value("results_directory")
+        print("Saved directory set to: ", directory)
+        if not directory or directory == 0:
+            file_dialog = QtWidgets.QFileDialog(self)
+            file_dialog.setFileMode(QtWidgets.QFileDialog.DirectoryOnly)
+            file_dialog.setDirectory(QtCore.QStandardPaths.standardLocations(QtCore.QStandardPaths.HomeLocation)[0])
+            if directory != "":
+                directory = file_dialog.getExistingDirectory()
+            if directory != "":
+                print("Setting directory to: \"" + directory + "\".")
+                self.settings_class.settings.setValue("results_directory", directory)
+            else:
+                print("No folder selected.")
+            if not os.path.isdir(directory):
+                os.makedirs(directory)
+            print("New directory set to: ", directory)
+
         self.welcome_signal.connect(self.welcome_open)
         self.welcome = QtWidgets.QProgressDialog(parent)
         self.welcome.setCancelButton(None)
@@ -61,7 +81,6 @@ class NewWindow(QtWidgets.QMainWindow):
     def run(self):
 
         if self.should_run:
-            self.settings_class = ShuttleSettings(self)
             self.box_handler_class = BoxHandler(self)
             self.box_handler_class.change_font_signal.connect(self.change_font)
             self.box_handler_class.boxes_ready_signal.connect(self.welcome_slot)
@@ -83,11 +102,20 @@ class NewWindow(QtWidgets.QMainWindow):
         if valid:
             self.styleChoice.setFont(font)
 
+
 if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     app = QtWidgets.QApplication(sys.argv)
+
+    app_icon = QtGui.QIcon()
+    app_icon.addFile(UI_LOGO, QtCore.QSize(16, 16))
+    app_icon.addFile(UI_LOGO, QtCore.QSize(24, 24))
+    app_icon.addFile(UI_LOGO, QtCore.QSize(32, 32))
+    app_icon.addFile(UI_LOGO, QtCore.QSize(48, 48))
+    app_icon.addFile(UI_LOGO, QtCore.QSize(256, 256))
+    app.setWindowIcon(app_icon)
 
     myWindow = NewWindow()
 

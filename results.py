@@ -72,7 +72,7 @@ class BoxResults(QtCore.QObject):
     # TODO: direct this path to a selected directory
 
     def make_folders(self, box_id):
-        path = ("C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/" + self.settings.value(
+        path = (self.settings.value("results_directory") + "/" + self.settings.value(
             "control_number/box_id_" + str(box_id)))
         if not os.path.isdir(path):
             os.makedirs(path)
@@ -88,7 +88,7 @@ class BoxResults(QtCore.QObject):
                 self.data_dictionary[box_id][i] = self.save_results(box_id, self.data_dictionary[box_id][i],
                                                                     self.file_names[i])
         # make note of the settings used in a log file
-        file = open("C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/settings_log.txt", "a")
+        file = open(self.settings.value("results_directory") + "/" + "settings_log.txt", "a")
         self.setting_log.append(self.settings_class.send_box_configs(box_id))
         self.setting_log.append(self.settings_class.send_settle_lights(box_id))
         self.setting_log.append(self.settings_class.send_trial_lights(box_id))
@@ -109,7 +109,7 @@ class BoxResults(QtCore.QObject):
         print("writing string to file: ", self.res)
 
         # Write the data to the files in csv format, each newline is a new test
-        file = open("C:/Users/AaronR/PycharmProjects/shuttle_gui/box_results/" + self.settings.value(
+        file = open(self.settings.value("results_directory") + "/" + self.settings.value(
             "control_number/box_id_" + str(box_id)) + file_ending, "a")
         num_trials = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
 

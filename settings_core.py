@@ -8,7 +8,7 @@
 #   by defining in a class self.settings = QtCore.QSettings()                                                          #
 ########################################################################################################################
 
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtWidgets
 
 
 class ShuttleSettings(QtCore.QObject):
@@ -38,6 +38,7 @@ class ShuttleSettings(QtCore.QObject):
 
         # If things get messed up in the registry, uncomment this line and recomplie. Make sure to re-comment.
         #self.settings.clear()
+
         self.load_settings()
         self.load_settle_lights()
         self.load_trial_lights()
@@ -50,6 +51,7 @@ class ShuttleSettings(QtCore.QObject):
         QtCore.QCoreApplication.setApplicationName("Shuttlebox Behavior System")
 
     def load_settings(self):
+        self.settings.setValue("results_directory", self.settings.value("results_directory", 0))
         self.boxes_configs_array.append("0 spot")
         for box in range(1, 50):
             self.settings.setValue(("control_number/box_id_" + str(box)), self.settings.value((

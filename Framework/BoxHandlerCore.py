@@ -50,24 +50,13 @@ class BoxHandler(QtCore.QThread):
         self.start()
 
     def __connect_signals_to_slots(self):
-
         # make an iterable an array to sort the COM ports
         my_it = sorted(comports())
-        ports = []  # type: serial.Serial
-
+        ports = []  # type: [serial.Serial]
         for n, (port, desc, hwid) in enumerate(my_it, 1):
-            # print "    desc: {}\n".format(desc)
-            # print "    hwid: {}\n".format(hwid)
             ports.append(port)
-            # print ports
-            # if pid == "2341":
-            #    print "this worked"
-
-        # !!!!IMPORTANT!!!! For every device found, open a new serial thread.
-        for port in ports:
-            if port == "COM1" or port == "COM3":
-                continue
-            self.thread_instances.append(serialHandler.SerialThread(self.main_window, self, port))
+            if "USB Serial Port" in "    desc: {}\n".format(desc):
+                self.thread_instances.append(serialHandler.SerialThread(self.main_window, self, port))
 
         # Make sure the COM port has a Shuttlebox connected and add it to the clickable numbered list
         for box in self.thread_instances:

@@ -17,6 +17,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui, uic
 import serialHandler
 from Framework.BoxHandlerCore import BoxHandler
 from settings_core import ShuttleSettings
+import qdarkstyle
 
 UI_FILE_PATH = "Shuttlebox_form.ui"
 UI_LOGO = "logo.png"
@@ -54,7 +55,7 @@ class NewWindow(QtWidgets.QMainWindow):
         self.welcome.setCancelButton(None)
         self.welcome.setRange(0, 0)
         self.my_font = QtGui.QFont()
-        self.my_font.setPointSizeF(11)
+        self.my_font.setPointSizeF(12)
         self.my_font.setBold(True)
         self.welcome.setFont(self.my_font)
         self.welcome.setWindowTitle("SARL Shuttlebox Behavior System")
@@ -82,7 +83,6 @@ class NewWindow(QtWidgets.QMainWindow):
 
         if self.should_run:
 
-            self.box_handler_class.change_font_signal.connect(self.change_font)
             self.box_handler_class.boxes_ready_signal.connect(self.welcome_slot)
             self.welcome_signal.emit()
             self.should_run = False
@@ -97,17 +97,13 @@ class NewWindow(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         self.stop_all_threads.emit()
 
-    def change_font(self):
-        font, valid = QtWidgets.QFontDialog.getFont()
-        if valid:
-            self.styleChoice.setFont(font)
-
 
 if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     app = QtWidgets.QApplication(sys.argv)
+    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
     app_icon = QtGui.QIcon()
     app_icon.addFile(UI_LOGO, QtCore.QSize(16, 16))

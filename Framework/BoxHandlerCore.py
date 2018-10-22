@@ -24,7 +24,6 @@ class BoxHandler(QtCore.QThread):
     abort_all_boxes_signal = QtCore.pyqtSignal()
     send_data_signal = QtCore.pyqtSignal(list, int)
     send_data_init_signal = QtCore.pyqtSignal(int)
-    change_font_signal = QtCore.pyqtSignal()
     boxes_ready_signal = QtCore.pyqtSignal()
 
     def __init__(self, main_window):
@@ -52,9 +51,18 @@ class BoxHandler(QtCore.QThread):
 
     def run(self):
         remove_array = []
+
         for index, item in enumerate(self.thread_instances):
             if not item.isRunning():
                 remove_array.append(index)
+                print("Box", index + 1, "removed")
+                msBox = QtWidgets.QMessageBox()
+                msBox.setIcon(3)
+                msBox.setText("Box #",  index + 1, "disconnected")
+                msBox.setStandardButtons(QtWidgets.QMessageBox.Cancel)
+                msBox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+                msBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+                msBox.exec_()
         for position in remove_array:
             self.thread_instances.remove(position)
 
@@ -117,9 +125,6 @@ class BoxHandler(QtCore.QThread):
         # initialize data dictionary arrays on settings change
         print("box manager init: box " + str(box_id))
         self.send_data_init_signal.emit(box_id)
-
-    def font_signal(self):
-        self.change_font_signal.emit()
 
     def box_counter(self):
         # counts a box when it's reported ready

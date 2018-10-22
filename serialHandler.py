@@ -18,6 +18,7 @@ from mainFile import NewWindow
 from settings_core import ShuttleSettings
 
 
+
 class SerialThread(QtCore.QThread):
 
     updating_settings_signal = QtCore.pyqtSignal()
@@ -168,7 +169,7 @@ class SerialThread(QtCore.QThread):
                 self.welcome.setCancelButton(None)
                 self.welcome.setRange(0, 0)
                 self.my_font = QtGui.QFont()
-                self.my_font.setPointSizeF(11)
+                self.my_font.setPointSizeF(12)
                 self.my_font.setBold(True)
                 self.welcome.setFont(self.my_font)
                 self.welcome.setWindowTitle("SARL Shuttlebox Behavior System")
@@ -276,14 +277,11 @@ class SerialThread(QtCore.QThread):
         self.restore_def_button.clicked.connect(self.restore_def_slot)
         self.apply_all_button = QtWidgets.QPushButton("APPLY TO ALL")
         self.apply_all_button.clicked.connect(self.apply_all_slot)
-        self.options_button = QtWidgets.QPushButton("OPTIONS")
-        self.options_button.clicked.connect(self.options_slot)
 
         # add buttons to the layout
         admin_layout.addRow("Restore defaults for Shuttlebox " + str(self.box_id), self.restore_def_button)
         admin_layout.addRow("Restore all defaults", self.restore_all_def_button)
         admin_layout.addRow("Apply settings to all boxes", self.apply_all_button)
-        admin_layout.addRow("Preferences", self.options_button)
         admin_layout.setHorizontalSpacing(10)
         holder_layout = QtWidgets.QHBoxLayout()
         holder_layout.addSpacing(220)
@@ -291,9 +289,6 @@ class SerialThread(QtCore.QThread):
         admin_tab_widget.setLayout(holder_layout)
 
     # Admin slots
-    def options_slot(self):
-        self.box_handler.font_signal()
-
     def apply_all_slot(self):
         msg = QtWidgets.QMessageBox()
         msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)

@@ -9,11 +9,12 @@
 #   all boxes at the same time, or send data from a box to be printed. NOTE: The only instance of results class is here.
 ########################################################################################################################
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 import serial
 from serial.tools.list_ports import comports
 import serialHandler
 import results
+import time
 
 
 class BoxHandler(QtCore.QThread):
@@ -49,31 +50,48 @@ class BoxHandler(QtCore.QThread):
         self.should_run = True
         self.start()
 
-    def __connect_signals_to_slots(self):
+    def run(self):
+        remove_array = []
+        for index, item in enumerate(self.thread_instances):
+            if not item.isRunning():
+                remove_array.append(index)
+        for position in remove_array:
+            self.thread_instances.remove(position)
 
+    def __connect_signals_to_slots(self):
         # make an iterable an array to sort the COM ports
         my_it = sorted(comports())
-        ports = []  # type: serial.Serial
-
+        ports = []  # type: [serial.Serial]
         for n, (port, desc, hwid) in enumerate(my_it, 1):
-            # print "    desc: {}\n".format(desc)
-            # print "    hwid: {}\n".format(hwid)
             ports.append(port)
-            # print ports
-            # if pid == "2341":
-            #    print "this worked"
-
-        # !!!!IMPORTANT!!!! For every device found, open a new serial thread.
-        for port in ports:
-            if port == "COM1":  # or port == "COM3":
-                continue
-            self.thread_instances.append(serialHandler.SerialThread(self.main_window, self, port))
+            if "USB Serial Port" in "    desc: {}\n".format(desc):
+                self.thread_instances.append(serialHandler.SerialThread(self.main_window, self, port))
 
         # Make sure the COM port has a Shuttlebox connected and add it to the clickable numbered list
-        for box in self.thread_instances:
-            while not box.box_id_found_flag:
+        # for box in self.thread_instances:
+        for index, box in enumerate(self.thread_instances):
+            start_time = time.time()
+            current_time = time.time()
+            timeout = 1000
+            while not box.box_id_found_flag or (current_time - start_time) > timeout:
                 self.msleep(1)
-            self.list_w.addItem(str(box.box_id))
+                current_time = time.time()
+            if box.box_id_found_flag:
+                self.list_w.addItem(str(box.box_id))
+            else:
+                # kill thread and delete it
+                del self.thread_instances[index]
+                pass
+        if len(self.thread_instances) == 0:
+            self.on_stop_all_threads_slot()
+            msgBox = QtWidgets.QMessageBox()
+            msgBox.setIcon(3)
+            msgBox.setText("No Shutleboxes found. Please connect a device and restart the program")
+            msgBox.setStandardButtons(QtWidgets.QMessageBox.Cancel)
+            msgBox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
+            msgBox.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+            msgBox.exec_()
+            exit()
         self.list_w.setCurrentRow(0)
         self.msleep(10)
 

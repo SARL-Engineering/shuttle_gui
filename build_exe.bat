@@ -1,0 +1,1 @@
+"C:\Program Files\Python37\Scripts\pyinstaller.exe" "Shuttlebox Behavior System.spec" -y

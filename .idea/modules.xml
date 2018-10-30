@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/.idea/serTest.iml" filepath="$PROJECT_DIR$/.idea/serTest.iml" />
+=======
+      <module fileurl="file://$PROJECT_DIR$/.idea/shuttle_gui.iml" filepath="$PROJECT_DIR$/.idea/shuttle_gui.iml" />
+>>>>>>> origin/master
     </modules>
   </component>
 </project>

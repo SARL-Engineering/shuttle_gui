@@ -48,7 +48,7 @@ class BoxHandler(QtCore.QThread):
         self.box_count = 0
         self.should_run = True
         self.start()
-
+#chck
     def run(self):
         remove_array = []
 

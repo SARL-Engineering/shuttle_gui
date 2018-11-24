@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Shuttlebox Behavior System"
-!define PRODUCT_VERSION "1.0.0"
+!define PRODUCT_VERSION "1.0.1"
 !define PRODUCT_PUBLISHER "Sinnhuber Aquatic Research Laboratory"
 !define PRODUCT_WEB_SITE "http://www.tanguaylab.com/SARL"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\Shuttlebox Behavior System.exe"
@@ -38,13 +38,13 @@
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "ShuttleboxBehaviorSetup.exe"
+OutFile "ShuttleboxBehaviorSetup_1_0_1.exe"
 InstallDir "$PROGRAMFILES\Shuttlebox Behavior System"
 InstallDirRegKey HKLM "${PRODUCT_DIR_REGKEY}" ""
 ShowInstDetails show
 ShowUnInstDetails show
 
-Section "Main Program" SEC01
+Section "Main Application" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite try
   File "Shuttlebox Behavior System\base_library.zip"

@@ -385,17 +385,17 @@ class SerialThread(QtCore.QThread):
 
         # add the elements to the layout
         settings_layout.addRow("Number of Trials", self.n_of_trials_box)
-        settings_layout.addRow("Selection Mode", self.selection_box)
-        settings_layout.addRow("Settle Time (m)", self.settle_time_box)
+        settings_layout.addRow("Selection Mode (default = 1)", self.selection_box)
+        settings_layout.addRow("Settle Time (s)", self.settle_time_box)
         settings_layout.addRow("Trial Duration (s)", self.trial_duration_box)
         settings_layout.addRow("Seek Time (s)", self.seek_time_box)
-        settings_layout.addRow("Trial Settle Time (s)", self.trial_settle_box)
-        settings_layout.addRow("Fault Out Sideswaps", self.fault_side_box)
+        settings_layout.addRow("Inter-Trial time (s)", self.trial_settle_box)
+        settings_layout.addRow("Trials to fault out", self.fault_side_box)
         settings_layout.addRow("Fault Out Percent (%)", self.fault_out_box)
         settings_layout.addRow("Shock Voltage (V)", self.shock_voltage_box)
         settings_layout.addRow("Shock Interval (ms)", self.shock_interval_box)
         settings_layout.addRow("Shock Duration (ms)", self.shock_duration_box)
-        settings_layout.addRow("Successful Trials", self.success_trials_box)
+        settings_layout.addRow("Trials to success out", self.success_trials_box)
         settings_layout2.addRow("Save Settings", self.update_button)
 
         # set the ranges
@@ -603,12 +603,12 @@ class SerialThread(QtCore.QThread):
         self.get_trial_lights_settings()
 
         # add the buttons to the layout
-        lights_tab_layout.addRow("Right Side trial Pattern", self.trial_lights_r_pattern_button)
-        lights_tab_layout.addRow("Right Side trial Lights Color", self.trial_lights_r_button)
-        lights_tab_layout.addRow("Right Side trial Lights Background Color", self.trial_lights_rb_button)
-        lights_tab_layout.addRow("Left Side trial Pattern", self.trial_lights_l_pattern_button)
-        lights_tab_layout.addRow("Left Side trial Lights Color", self.trial_lights_l_button)
-        lights_tab_layout.addRow("Left Side trial Lights Background Color", self.trial_lights_lb_button)
+        lights_tab_layout.addRow("Accept Side trial Pattern", self.trial_lights_r_pattern_button)
+        lights_tab_layout.addRow("Accept Side trial Lights Color", self.trial_lights_r_button)
+        lights_tab_layout.addRow("Accept Side trial Lights Background Color", self.trial_lights_rb_button)
+        lights_tab_layout.addRow("Reject Side trial Pattern", self.trial_lights_l_pattern_button)
+        lights_tab_layout.addRow("Reject Side trial Lights Color", self.trial_lights_l_button)
+        lights_tab_layout.addRow("Reject Side trial Lights Background Color", self.trial_lights_lb_button)
 
         # connect the slots
         self.trial_lights_r_button.clicked.connect(lambda: self.color_select_slot("trial_lights", "right_side_color",
@@ -956,7 +956,7 @@ class SerialThread(QtCore.QThread):
         # abort this box
         self.send_to_box(self.box_id)
         self.send_to_box(",")
-        self.send_to_box("254")
+        self.send_to_box("255")
         print("Abort pushed")
         self.msleep(50)
 
@@ -997,7 +997,7 @@ class SerialThread(QtCore.QThread):
         print("abort all from " + str(self.box_id))
         self.send_to_box(self.box_id)
         self.send_to_box(",")
-        self.send_to_box("254")
+        self.send_to_box("255")
         print("Abort all")
         self.msleep(50)
 

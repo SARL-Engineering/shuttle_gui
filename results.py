@@ -52,7 +52,7 @@ class BoxResults(QtCore.QObject):
                            "/shockedTime.txt"]
 
         # !!!!WARNING!!!! Do not emit a signal for a queued connection from a multi-threaded class!
-        #                 Use BoxHaandler.send_data
+        #                 Use BoxHandler.send_data
         self.box_handler.send_data_signal.connect(self.results_to_array, QtCore.Qt.QueuedConnection)
         self.box_handler.send_data_init_signal.connect(self.results_init, QtCore.Qt.QueuedConnection)
         self.m = 0

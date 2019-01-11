@@ -353,8 +353,6 @@ class ShuttleSettings(QtCore.QObject):
             self.boxes_start_lights_array.append(self.boxes_start_lights_box_array)
 
     def send_start_lights(self, box_id):
-        #
-        print("Len of lights array: %d | requesting: %d" % (len(self.boxes_start_lights_array), box_id))
         return self.boxes_start_lights_array[box_id]
 
     # A handy scaling function similar to C++ function "map"

@@ -18,7 +18,6 @@ from mainFile import NewWindow
 from settings_core import ShuttleSettings
 
 
-
 class SerialThread(QtCore.QThread):
 
     updating_settings_signal = QtCore.pyqtSignal()
@@ -107,8 +106,6 @@ class SerialThread(QtCore.QThread):
                         if "z, " in self.in_buffer:
                             # The assay has ended or the trial has been aborted, results received from Arduino.
                             self.results = self.in_buffer.split(", ")
-                            self.results.pop()
-                            self.results.pop(0)
                             self.results.pop(0)
                             self.results.pop(0)
                             print("popped results", self.results)

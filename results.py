@@ -69,8 +69,6 @@ class BoxResults(QtCore.QObject):
                                                    QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate))]
         return temp_array
 
-    # TODO: direct this path to a selected directory
-
     def make_folders(self, box_id):
         path = (self.settings.value("results_directory") + "/" + self.settings.value(
             "control_number/box_id_" + str(box_id)))
@@ -79,16 +77,23 @@ class BoxResults(QtCore.QObject):
 
     def results_to_array(self, results_array, box_id):
         # update the the arrays with the test results as they arrive
+        flag = results_array.pop(0)
         for i in range(1, 8):
             self.data_dictionary[box_id][i].append(results_array[i])
         num_trials = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
-        print("m = " + str(num_trials) + "res = " + str(results_array[0]))
+        print("fault_flag: ", flag)
+        print("num of trials = " + str(num_trials) + "current trial = " + str(results_array[0]))
+        if int(flag) >= int(self.settings.value("boxes/box_id_" + str(box_id) + "/fault_out_side")):
+            print("flag is :", flag)
+            num_trials = int(results_array[0])
         if int(num_trials) == int(results_array[0]):
             for i in range(1, 8):
                 self.data_dictionary[box_id][i] = self.save_results(box_id, self.data_dictionary[box_id][i],
-                                                                    self.file_names[i])
+                                                                    self.file_names[i], flag, num_trials)
         # make note of the settings used in a log file
         file = open(self.settings.value("results_directory") + "/" + "settings_log.txt", "a")
+        if int(flag) >= int(self.settings.value("boxes/box_id_" + str(box_id) + "/fault_out_side")):
+            self.setting_log.append("FAULT OUT")
         self.setting_log.append(self.settings_class.send_box_configs(box_id))
         self.setting_log.append(self.settings_class.send_settle_lights(box_id))
         self.setting_log.append(self.settings_class.send_trial_lights(box_id))
@@ -99,10 +104,13 @@ class BoxResults(QtCore.QObject):
         file.close()
         self.setting_log = []
 
-    def save_results(self, box_id, results_array, file_ending):
+    def save_results(self, box_id, results_array, file_ending, flag, num_trials_input):
         # passing in the array to be saved, and updating the time-stamps and settings
         self.res = results_array
-        self.res[0] = self.settings.value("control_number/box_id_" + str(box_id))
+        if int(flag) == num_trials_input:
+            self.res[0] = "FAULT OUT " + self.settings.value("control_number/box_id_" + str(box_id))
+        else:
+            self.res[0] = self.settings.value("control_number/box_id_" + str(box_id))
         self.res[1] = self.settings.value("concentrate/box_id_" + str(box_id))
         self.res[2] = ("Shuttlebox_" + str(box_id) + "_on_" +
                               QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate))
@@ -111,11 +119,9 @@ class BoxResults(QtCore.QObject):
         # Write the data to the files in csv format, each newline is a new test
         file = open(self.settings.value("results_directory") + "/" + self.settings.value(
             "control_number/box_id_" + str(box_id)) + file_ending, "a")
-        num_trials = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
-
         # The first three spots in the array are the generation data, the rest is length "m" dep. on number of trials
-        for i in range(0, (3 + int(num_trials))):
-            if i == (2 + int(num_trials)):
+        for i in range(0, (3 + int(num_trials_input))):
+            if i == (2 + int(num_trials_input)):
                 file.write(str(self.res[i]))
                 file.write("\n")
             else:

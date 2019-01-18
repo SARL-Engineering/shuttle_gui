@@ -122,7 +122,7 @@ class BoxHandler(QtCore.QThread):
         self.send_data_signal.emit(data, box_id)
 
     def send_data_init(self, box_id):
-        # initialize data dictionary arrays on settings change
+        # initialize data dictionary arrays on settings change or abort
         print("box manager init: box " + str(box_id))
         self.send_data_init_signal.emit(box_id)
 

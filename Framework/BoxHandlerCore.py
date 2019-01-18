@@ -24,6 +24,8 @@ class BoxHandler(QtCore.QThread):
     abort_all_boxes_signal = QtCore.pyqtSignal()
     send_data_signal = QtCore.pyqtSignal(list, int)
     send_data_init_signal = QtCore.pyqtSignal(int)
+    settings_log_signal = QtCore.pyqtSignal(int)
+    abort_log_signal = QtCore.pyqtSignal(int)
     boxes_ready_signal = QtCore.pyqtSignal()
 
     def __init__(self, main_window):
@@ -110,6 +112,14 @@ class BoxHandler(QtCore.QThread):
         # start all the boxes
         print("Box manager starting all")
         self.start_all_boxes_signal.emit()
+
+    def on_box_start(self, box_id):
+        # log the settings used
+        self.settings_log_signal.emit(box_id)
+
+    def on_box_abort(self, box_id):
+        # log the settings used
+        self.abort_log_signal.emit(box_id)
 
     def abort_all(self):
         # abort all boxes

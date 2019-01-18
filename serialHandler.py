@@ -53,7 +53,7 @@ class SerialThread(QtCore.QThread):
         self.settings_flag = False
         self.box_id_found_flag = False
         self.box_id = None
-        self.fault_data = None
+        self.fish_gender = None
         self.fault_flag = 0
 
         # More static GUI elements
@@ -101,21 +101,15 @@ class SerialThread(QtCore.QThread):
                         if "s: " in self.in_buffer:
                             # The current state of the Shuttlebox has changed
                             self.current_state = int(self.in_buffer.split(": ")[1])
-                            print("STATE = " + str(self.current_state))
+                            print("STATE = " + str(self.current_state) + "from box: " + str(self.box_id))
                             if self.box_tab_widget:
                                 self.update_status_label(int(self.current_state))
-
-                        if "f: " in self.in_buffer:
-                            print("fault out event")
-                            self.fault_data = self.in_buffer.split(": ")[1]
-                            print("fault data", self.fault_data)
 
                         if "z, " in self.in_buffer:
                             # The assay has ended or the trial has been aborted, results received from Arduino.
                             self.results = self.in_buffer.split(", ")
                             self.results.pop(0)
                             self.results.pop(0)
-                            print("popped results", self.results)
                             self.box_handler.send_data(self.results, self.box_id)
                             self.results_flag = 1
                             self.fault_flag = 0
@@ -141,7 +135,6 @@ class SerialThread(QtCore.QThread):
                     self.arduino.flush()
             except IOError as e:
                 self.should_run = False
-
 
 ########################################################################################################################
 #   These functions support the settings updates, and handle updating the GUI when the list item is changed.           #
@@ -852,6 +845,10 @@ class SerialThread(QtCore.QThread):
         self.control_id_box.setText(self.settings.value(("control_number/box_id_" + str(self.box_id))))
         self.concentrate_box = QtWidgets.QTextEdit()
         self.concentrate_box.setText(self.settings.value("concentrate/box_id_" + str(self.box_id)))
+        self.gender_box = QtWidgets.QComboBox()
+        self.gender_box.addItem("Female")
+        self.gender_box.addItem("Male")
+        self.gender_box.addItem("N/A")
         control_start_button = QtWidgets.QPushButton("Start Box " + str(self.box_id))
         control_start_all_button = QtWidgets.QPushButton("Start All")
         control_start_group_button = QtWidgets.QPushButton("Update Box" + str(self.box_id))
@@ -860,8 +857,9 @@ class SerialThread(QtCore.QThread):
 
         # Adding the buttons to the layout
         control_form_layout.addRow("Current Status: ", self.current_state_show)
-        control_form_layout.addRow("Generation", self.control_id_box)
+        control_form_layout.addRow("Treatment", self.control_id_box)
         control_form_layout.addRow("Concentration", self.concentrate_box)
+        control_form_layout.addRow("Gender", self.gender_box)
         control_form_layout2.addRow("Start Box " + str(self.box_id), control_start_button)
         control_form_layout2.addRow("Start All", control_start_all_button)
         control_form_layout2.addRow("Abort", control_abort_button)
@@ -871,6 +869,7 @@ class SerialThread(QtCore.QThread):
         # slots
         self.control_id_box.textChanged.connect(self.control_id_slot)
         self.concentrate_box.textChanged.connect(self.concentrate_slot)
+        self.gender_box.activated[str].connect(self.gender_box_slot)
         control_start_button.clicked.connect(self.button_one_slot)
         control_start_all_button.clicked.connect(self.button_two_slot)
         control_start_group_button.clicked.connect(self.update_settings_slot)
@@ -903,6 +902,9 @@ class SerialThread(QtCore.QThread):
         self.settings_flag = True
         self.settings.setValue(("concentrate/box_id_" + str(self.box_id)), self.concentrate_box.toPlainText())
 
+    def gender_box_slot(self):
+        self.settings.setValue("gender/box_id_" + str(self.box_id), self.gender_box.currentText())
+
     def update_status_label(self, status):
         self.current_state_label = self.current_state_strings[status]
         self.current_state_show.setText(self.current_state_label)
@@ -923,9 +925,9 @@ class SerialThread(QtCore.QThread):
                 m.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 m.setModal(True)
                 m.exec()
-            elif self.control_id_box.toPlainText() == "ENTER GENERATION":
+            elif self.control_id_box.toPlainText() == "ENTER TREATMENT":
                 msg = QtWidgets.QMessageBox()
-                msg.setInformativeText("Please enter a generation ID.")
+                msg.setInformativeText("Please enter a treatment ID.")
                 msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
                 msg.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 msg.setModal(True)
@@ -938,19 +940,19 @@ class SerialThread(QtCore.QThread):
                 msg.setModal(True)
                 msg.exec()
             else:
-                #self.results_class.results_init(self.box_id)
                 self.box_handler.send_data_init(self.box_id)
                 self.send_to_box(self.box_id)
                 self.send_to_box(",")
                 self.send_to_box("250")
                 print("Start pushed")
+                BoxHandler.on_box_start(self.box_handler, self.box_id)
                 self.msleep(50)
 
     def button_two_slot(self):
         # Signal all the boxes to start via the BoxHandler
         BoxHandler.start_all_boxes_manager = True
         BoxHandler.start_all_boxes(self.box_handler)
-        print("Start all signal pushed")
+        print("Start all signal pushed from box: ", self.box_id)
 
     def abort_all_slot(self):
         # Signal all the boxes to abort via the BoxHandler
@@ -963,6 +965,7 @@ class SerialThread(QtCore.QThread):
         self.send_to_box(",")
         self.send_to_box("255")
         print("Abort pushed")
+        BoxHandler.on_box_abort(self.box_handler, self.box_id)
         self.msleep(50)
 
     def on_start_all_boxes(self):

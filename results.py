@@ -37,6 +37,7 @@ class BoxResults(QtCore.QObject):
         self.shockModeTime = []
         self.shockedTime = []
         self.setting_log = []
+        self.abort_log = []
 
         # add the arrays to the dictionary
         for i in range(1, self.settings_class.number_of_boxes):
@@ -55,6 +56,8 @@ class BoxResults(QtCore.QObject):
         #                 Use BoxHandler.send_data
         self.box_handler.send_data_signal.connect(self.results_to_array, QtCore.Qt.QueuedConnection)
         self.box_handler.send_data_init_signal.connect(self.results_init, QtCore.Qt.QueuedConnection)
+        self.box_handler.settings_log_signal.connect(self.settings_writer, QtCore.Qt.QueuedConnection)
+        self.box_handler.abort_log_signal.connect(self.abort_writer, QtCore.Qt.QueuedConnection)
         self.m = 0
 
     def results_init(self, box_id):
@@ -75,6 +78,28 @@ class BoxResults(QtCore.QObject):
         if not os.path.isdir(path):
             os.makedirs(path)
 
+    def settings_writer(self, box_id):
+        # make note of the settings used in a log file
+        file = open(self.settings.value("results_directory") + "/" + "settings_log.txt", "a")
+        self.setting_log.append(self.settings_class.send_box_configs(box_id))
+        self.setting_log.append(self.settings_class.send_settle_lights(box_id))
+        self.setting_log.append(self.settings_class.send_trial_lights(box_id))
+        file.write("Shuttlebox_" + str(box_id) + "_on_" +
+                   QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate))
+        file.write(str(self.setting_log) + "\n")
+        file.close()
+        self.setting_log = []
+
+    def abort_writer(self, box_id):
+        # make note of the settings used in a log file
+        file = open(self.settings.value("results_directory") + "/" + "abort_log.txt", "a")
+        self.abort_log.append(self.settings_class.send_box_configs(box_id))
+        file.write("ABORT on Shuttlebox_" + str(box_id) + "_on_" +
+                   QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate))
+        file.write(str(self.abort_log) + "\n")
+        file.close()
+        self.abort_log = []
+
     def results_to_array(self, results_array, box_id):
         # update the the arrays with the test results as they arrive
         flag = results_array.pop(0)
@@ -90,30 +115,18 @@ class BoxResults(QtCore.QObject):
             for i in range(1, 8):
                 self.data_dictionary[box_id][i] = self.save_results(box_id, self.data_dictionary[box_id][i],
                                                                     self.file_names[i], flag, num_trials)
-        # make note of the settings used in a log file
-        file = open(self.settings.value("results_directory") + "/" + "settings_log.txt", "a")
-        if int(flag) >= int(self.settings.value("boxes/box_id_" + str(box_id) + "/fault_out_side")):
-            self.setting_log.append("FAULT OUT")
-        self.setting_log.append(self.settings_class.send_box_configs(box_id))
-        self.setting_log.append(self.settings_class.send_settle_lights(box_id))
-        self.setting_log.append(self.settings_class.send_trial_lights(box_id))
-        self.setting_log.append(self.settings_class.send_start_lights(box_id))
-        file.write("Shuttlebox_" + str(box_id) + "_on_" +
-                              QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate))
-        file.write(str(self.setting_log) + "\n")
-        file.close()
-        self.setting_log = []
 
     def save_results(self, box_id, results_array, file_ending, flag, num_trials_input):
         # passing in the array to be saved, and updating the time-stamps and settings
         self.res = results_array
+        # checking for a fault out condition. If none then print data normally.
         if int(flag) == num_trials_input:
-            self.res[0] = "FAULT OUT " + self.settings.value("control_number/box_id_" + str(box_id))
+            self.res[0] = "FAULT OUT," + self.settings.value("control_number/box_id_" + str(box_id))
         else:
             self.res[0] = self.settings.value("control_number/box_id_" + str(box_id))
         self.res[1] = self.settings.value("concentrate/box_id_" + str(box_id))
-        self.res[2] = ("Shuttlebox_" + str(box_id) + "_on_" +
-                              QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate))
+        self.res[2] = ("Shuttlebox_" + str(box_id) + "_on_" + QtCore.QDateTime.currentDateTime().
+                       toString(QtCore.Qt.ISODate) + "," + str(self.settings.value("gender/box_id_" + str(box_id))))
         print("writing string to file: ", self.res)
 
         # Write the data to the files in csv format, each newline is a new test

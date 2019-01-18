@@ -85,6 +85,8 @@ class ShuttleSettings(QtCore.QObject):
                 "boxes/box_id_" + str(box) + "/shock_duration"), 50))
             self.settings.setValue(("boxes/box_id_" + str(box) + "/success_trials"), self.settings.value((
                 "boxes/box_id_" + str(box) + "/success_trials"), 5))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/gender"), self.settings.value((
+                    "boxes/box_id_" + str(box) + "/gender"), "Female"))
 
             # make the array for sending configs to arduinos
             self.boxes_configs_box_array = [self.settings.value(("boxes/box_id_" + str(box) + "/n_of_trials"), box),

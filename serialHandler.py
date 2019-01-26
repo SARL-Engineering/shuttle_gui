@@ -45,7 +45,7 @@ class SerialThread(QtCore.QThread):
         self.results_flag = 0
         self.current_state_label = "Wait for Start"
         self.current_state_strings = ["Wait for Start", "Test Start", "Settle Period", "Inter Trial", "Trial Start",
-                                      "Trial Seek", "Trial Shock", "Trial End", "Abort", "Test End"]
+                                      "Trial Running", "Trial Shock", "Trial End", "Abort", "Test End"]
         self.pattern_list = ["Heart", "Big X", "Big O", "Horizontal Lines", "Vertical Lines", "Diagonal Lines",
                              "Big Line", "Small Box", "Corners"]
         self.results = None
@@ -101,7 +101,7 @@ class SerialThread(QtCore.QThread):
                         if "s: " in self.in_buffer:
                             # The current state of the Shuttlebox has changed
                             self.current_state = int(self.in_buffer.split(": ")[1])
-                            print("STATE = " + str(self.current_state) + "from box: " + str(self.box_id))
+                            print("STATE = " + str(self.current_state) + " from box: " + str(self.box_id))
                             if self.box_tab_widget:
                                 self.update_status_label(int(self.current_state))
 
@@ -129,7 +129,7 @@ class SerialThread(QtCore.QThread):
                             # self.send_to_box("7,3,200,15,12,255,10,255,50,75,0,255,0,255,200,225,0,255,255,200,1,0")
                             # self.send_to_box("7,3,200,15,12,255,10,255,50,75,0,255,0,255,200,225,0,255,255,200,1,0")
 
-                        print(self.in_buffer)
+                        print("Box", str(self.box_id), " sent: ", self.in_buffer)
                         self.in_buffer = ""
                     self.msleep(50)
                     self.arduino.flush()
@@ -849,6 +849,13 @@ class SerialThread(QtCore.QThread):
         self.gender_box.addItem("Female")
         self.gender_box.addItem("Male")
         self.gender_box.addItem("N/A")
+        self.fish_gender = self.settings.value("boxes/box_id_" + str(self.box_id) + "/gender")
+        if self.fish_gender == "Female":
+            self.gender_box.setCurrentIndex(0)
+        elif self.fish_gender == "Male":
+            self.gender_box.setCurrentIndex(1)
+        if self.fish_gender == "N/A":
+            self.gender_box.setCurrentIndex(2)
         control_start_button = QtWidgets.QPushButton("Start Box " + str(self.box_id))
         control_start_all_button = QtWidgets.QPushButton("Start All")
         control_start_group_button = QtWidgets.QPushButton("Update Box" + str(self.box_id))
@@ -903,7 +910,8 @@ class SerialThread(QtCore.QThread):
         self.settings.setValue(("concentrate/box_id_" + str(self.box_id)), self.concentrate_box.toPlainText())
 
     def gender_box_slot(self):
-        self.settings.setValue("gender/box_id_" + str(self.box_id), self.gender_box.currentText())
+        self.settings_flag = True
+        self.settings.setValue("boxes/box_id_" + str(self.box_id) + "/gender", self.gender_box.currentText())
 
     def update_status_label(self, status):
         self.current_state_label = self.current_state_strings[status]
@@ -925,14 +933,14 @@ class SerialThread(QtCore.QThread):
                 m.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 m.setModal(True)
                 m.exec()
-            elif self.control_id_box.toPlainText() == "ENTER TREATMENT":
+            elif str(self.settings.value("control_number/box_id_" + str(self.box_id))) == "ENTER TREATMENT":
                 msg = QtWidgets.QMessageBox()
                 msg.setInformativeText("Please enter a treatment ID.")
                 msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
                 msg.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
                 msg.setModal(True)
                 msg.exec()
-            elif self.concentrate_box.toPlainText() == "ENTER CONCENTRATE":
+            elif str(self.settings.value("concentrate/box_id_" + str(self.box_id))) == "ENTER CONCENTRATE":
                 msg = QtWidgets.QMessageBox()
                 msg.setInformativeText("Please enter a concentration.")
                 msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
@@ -971,6 +979,7 @@ class SerialThread(QtCore.QThread):
     def on_start_all_boxes(self):
         # This runs after getting the signal from BoxHandler to start all boxes (can be called from same thread)
         print("on start all from box" + str(self.box_id))
+        # ##############################################RESTORE THIS SECTION BEFORE LAUNCH#######################
         self.button_one_slot()
 
     def on_abort_all_boxes(self):

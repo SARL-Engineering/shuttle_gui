@@ -73,14 +73,14 @@ class BoxResults(QtCore.QObject):
         return temp_array
 
     def make_folders(self, box_id):
-        path = (self.settings.value("results_directory") + "/" + self.settings.value(
-            "control_number/box_id_" + str(box_id)))
+        path = (str(self.settings.value("results_directory")) + "/" + str(self.settings.value(
+            "control_number/box_id_" + str(box_id))))
         if not os.path.isdir(path):
             os.makedirs(path)
 
     def settings_writer(self, box_id):
         # make note of the settings used in a log file
-        file = open(self.settings.value("results_directory") + "/" + "settings_log.txt", "a")
+        file = open(str(self.settings.value("results_directory") + "/" + "settings_log.txt"), "a")
         self.setting_log.append(self.settings_class.send_box_configs(box_id))
         self.setting_log.append(self.settings_class.send_settle_lights(box_id))
         self.setting_log.append(self.settings_class.send_trial_lights(box_id))
@@ -107,7 +107,7 @@ class BoxResults(QtCore.QObject):
             self.data_dictionary[box_id][i].append(results_array[i])
         num_trials = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
         print("fault_flag: ", flag)
-        print("num of trials = " + str(num_trials) + "current trial = " + str(results_array[0]))
+        print("num of trials = " + str(num_trials) + " current trial = " + str(results_array[0]))
         if int(flag) >= int(self.settings.value("boxes/box_id_" + str(box_id) + "/fault_out_side")):
             print("flag is :", flag)
             num_trials = int(results_array[0])
@@ -126,12 +126,14 @@ class BoxResults(QtCore.QObject):
             self.res[0] = self.settings.value("control_number/box_id_" + str(box_id))
         self.res[1] = self.settings.value("concentrate/box_id_" + str(box_id))
         self.res[2] = ("Shuttlebox_" + str(box_id) + "_on_" + QtCore.QDateTime.currentDateTime().
-                       toString(QtCore.Qt.ISODate) + "," + str(self.settings.value("gender/box_id_" + str(box_id))))
+                       toString(QtCore.Qt.ISODate) + "," + str(self.settings.value("boxes/box_id_" + str(box_id) +
+                                                                                   "/gender")))
         print("writing string to file: ", self.res)
 
         # Write the data to the files in csv format, each newline is a new test
-        file = open(self.settings.value("results_directory") + "/" + self.settings.value(
-            "control_number/box_id_" + str(box_id)) + file_ending, "a")
+        file = open(self.settings.value("results_directory") + "/" +
+                                        self.settings.value("control_number/box_id_" + str(box_id))
+                                        + str(file_ending), "a")
         # The first three spots in the array are the generation data, the rest is length "m" dep. on number of trials
         for i in range(0, (3 + int(num_trials_input))):
             if i == (2 + int(num_trials_input)):

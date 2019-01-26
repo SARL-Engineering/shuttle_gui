@@ -36,8 +36,8 @@ class ShuttleSettings(QtCore.QObject):
         # run
         self.settings.setFallbacksEnabled(False)
 
-        # If things get messed up in the registry, uncomment this line and recomplie. Make sure to re-comment.
-        #self.settings.clear()
+        # If things get messed up in the registry, uncomment this line and recompile. Make sure to re-comment.
+        # self.settings.clear()
 
         self.load_settings()
         self.load_settle_lights()
@@ -55,7 +55,7 @@ class ShuttleSettings(QtCore.QObject):
         self.boxes_configs_array.append("0 spot")
         for box in range(1, 50):
             self.settings.setValue(("control_number/box_id_" + str(box)), self.settings.value((
-                "control_number/box_id_" + str(box)), "ENTER GENERATION"))
+                "control_number/box_id_" + str(box)), "ENTER TREATMENT"))
             self.settings.setValue(("concentrate/box_id_" + str(box)), self.settings.value(("concentrate/box_id_" +
                                                                                            str(box)),
                                                                                            "ENTER CONCENTRATE"))
@@ -366,7 +366,7 @@ class ShuttleSettings(QtCore.QObject):
         # restore the defaults to all the boxes
         for box in range(1, 50):
             # Control
-            self.settings.setValue(("control_number/box_id_" + str(box)), "ENTER GENERATION")
+            self.settings.setValue(("control_number/box_id_" + str(box)), "ENTER TREATMENT")
             self.settings.setValue(("concentrate/box_id_" + str(box)), "ENTER CONCENTRATE")
             self.settings.setValue(("boxes/box_id_" + str(box) + "/n_of_trials"), box)
             self.settings.setValue(("boxes/box_id_" + str(box) + "selection_mode"), 1)
@@ -434,7 +434,7 @@ class ShuttleSettings(QtCore.QObject):
         # Restores the defaults to the box
 
         # Control
-        self.settings.setValue(("control_number/box_id_" + str(box)), "ENTER GENERATION")
+        self.settings.setValue(("control_number/box_id_" + str(box)), "ENTER TREATMENT")
         self.settings.setValue(("concentrate/box_id_" + str(box)), "ENTER CONCENTRATE")
         self.settings.setValue(("boxes/box_id_" + str(box) + "/n_of_trials"), box)
         self.settings.setValue(("boxes/box_id_" + str(box) + "selection_mode"), 1)
@@ -629,7 +629,7 @@ class ShuttleSettings(QtCore.QObject):
         # applies the settings from the box to all connected boxes
         for box in range(1, self.number_of_boxes):
             self.settings.setValue(("control_number/box_id_" + str(box)), self.settings.value((
-                "control_number/box_id_" + str(box_id)), "ENTER GENERATION"))
+                "control_number/box_id_" + str(box_id)), "ENTER TREATMENT"))
             self.settings.setValue(("concentrate/box_id_" + str(box)), self.settings.value(("concentrate/box_id_" +
                                                                                            str(box_id)),
                                                                                            "ENTER CONCENTRATE"))
@@ -659,6 +659,8 @@ class ShuttleSettings(QtCore.QObject):
                 "boxes/box_id_" + str(box_id) + "/shock_duration"), 50))
             self.settings.setValue(("boxes/box_id_" + str(box) + "/success_trials"), self.settings.value((
                 "boxes/box_id_" + str(box_id) + "/success_trials"), 5))
+            self.settings.setValue(("boxes/box_id_" + str(box) + "/gender"), self.settings.value((
+                    "boxes/box_id_" + str(box_id) + "/gender"), "Female"))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "right_pattern"), self.settings.value((
                 "lights/settle_lights/box_id_" + str(box) + "right_pattern"), 4))
             self.settings.setValue(("lights/settle_lights/box_id_" + str(box) + "left_pattern"), self.settings.value((

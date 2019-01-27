@@ -90,12 +90,12 @@ class BoxResults(QtCore.QObject):
         file.close()
         self.setting_log = []
 
-    def abort_writer(self, box_id):
+    def abort_writer(self, box_id, state):
         # make note of the settings used in a log file
         file = open(self.settings.value("results_directory") + "/" + "abort_log.txt", "a")
         self.abort_log.append(self.settings_class.send_box_configs(box_id))
         file.write("ABORT on Shuttlebox_" + str(box_id) + "_on_" +
-                   QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate))
+                   QtCore.QDateTime.currentDateTime().toString(QtCore.Qt.ISODate) + "," + state + ",")
         file.write(str(self.abort_log) + "\n")
         file.close()
         self.abort_log = []

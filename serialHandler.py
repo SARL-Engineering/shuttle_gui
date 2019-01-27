@@ -973,7 +973,7 @@ class SerialThread(QtCore.QThread):
         self.send_to_box(",")
         self.send_to_box("255")
         print("Abort pushed")
-        BoxHandler.on_box_abort(self.box_handler, self.box_id)
+        BoxHandler.on_box_abort(self.box_handler, self.box_id, self.current_state_label)
         self.msleep(50)
 
     def on_start_all_boxes(self):
@@ -985,11 +985,7 @@ class SerialThread(QtCore.QThread):
     def on_abort_all_boxes(self):
         # This runs after getting the signal from BoxHandler to abort all boxes (can be called from same thread)
         print("abort all from " + str(self.box_id))
-        self.send_to_box(self.box_id)
-        self.send_to_box(",")
-        self.send_to_box("255")
-        print("Abort all")
-        self.msleep(50)
+        self.button_four_slot()
 
     def on_stop_all_threads_slot(self):
         self.should_run = False

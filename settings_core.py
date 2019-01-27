@@ -184,8 +184,7 @@ class ShuttleSettings(QtCore.QObject):
                                                   self.settings.value(("lights/settle_lights/box_id_" + str(box) +
                                                                        "right_back_sat"), 200),
                                                   self.settings.value(("lights/settle_lights/box_id_" + str(box) +
-                                                                       "left_back_sat"), 200),
-                                                  200, 225, 255, 0, 255, 200, 0, 1
+                                                                       "left_back_sat"), 200)
                                                   ]
             self.boxes_settle_lights_array.append(self.boxes_settle_lights_box_array)
 
@@ -268,8 +267,7 @@ class ShuttleSettings(QtCore.QObject):
                                                  self.settings.value(("lights/trial_lights/box_id_" + str(box) +
                                                                       "right_back_sat"), 200),
                                                  self.settings.value(("lights/trial_lights/box_id_" + str(box) +
-                                                                      "left_back_sat"), 200), 200, 225, 255, 0, 255,
-                                                 200, 0, 1]
+                                                                      "left_back_sat"), 200)]
             self.boxes_trial_lights_array.append(self.boxes_trial_lights_box_array)
 
     def send_trial_lights(self, box_id):
@@ -350,8 +348,7 @@ class ShuttleSettings(QtCore.QObject):
                                                  self.settings.value(("lights/start_lights/box_id_" + str(box) +
                                                                      "right_back_sat"), 200),
                                                  self.settings.value(("lights/start_lights/box_id_" + str(box) +
-                                                                     "left_back_sat"), 200), 200, 225, 255, 0, 255,
-                                                 200, 0, 1]
+                                                                     "left_back_sat"), 200)]
             self.boxes_start_lights_array.append(self.boxes_start_lights_box_array)
 
     def send_start_lights(self, box_id):

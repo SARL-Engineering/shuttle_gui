@@ -73,8 +73,8 @@ class BoxHandler(QtCore.QThread):
         for n, (port, desc, hwid) in enumerate(my_it, 1):
             ports.append(port)
             # this is for testing, allow arduinos as well or exclude them
-            #if "USB Serial Port" in "    desc: {}\n".format(desc):
-            if "USB Serial Port" in "    desc: {}\n".format(desc) or "Arduino" in "    desc: {}\n".format(desc):
+            if "USB Serial Port" in "    desc: {}\n".format(desc):
+            # if "USB Serial Port" in "    desc: {}\n".format(desc) or "Arduino" in "    desc: {}\n".format(desc):
                 self.thread_instances.append(serialHandler.SerialThread(self.main_window, self, port))
 
         # Make sure the COM port has a Shuttlebox connected and add it to the clickable numbered list

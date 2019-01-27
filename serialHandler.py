@@ -192,7 +192,7 @@ class SerialThread(QtCore.QThread):
 
                 # Send the signals to update the box
                 self.update_flag = False
-                self.settings_core.update_settings(self.box_id)
+                self.settings_core.update_settings(self.box_id, 0)
                 self.box_handler.send_data_init(self.box_id)
                 self.send_to_box(self.box_id)
                 self.send_to_box(",")

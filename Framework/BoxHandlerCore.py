@@ -86,7 +86,7 @@ class BoxHandler(QtCore.QThread):
             while not box.box_id_found_flag or (current_time - start_time) > timeout:
                 self.msleep(1)
                 current_time = time.time()
-            if box.box_id_found_flag:
+            if box.box_id_found_flag and str(box.box_id) not in self.list_w:
                 self.list_w.addItem(str(box.box_id))
             else:
                 # kill thread and delete it

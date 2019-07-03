@@ -103,7 +103,9 @@ class BoxResults(QtCore.QObject):
     def results_to_array(self, results_array, box_id):
         # update the the arrays with the test results as they arrive
         flag = results_array.pop(0)
-        for i in range(1, 8):
+        print(results_array)
+        for i in range(0, 8):
+            #print(i)
             self.data_dictionary[box_id][i].append(results_array[i])
         num_trials = self.settings.value(("boxes/box_id_" + str(box_id) + "/n_of_trials"))
         print("fault_flag: ", flag)
@@ -112,9 +114,9 @@ class BoxResults(QtCore.QObject):
             print("flag is :", flag)
             num_trials = int(results_array[0])
         if int(num_trials) == int(results_array[0]):
-            for i in range(1, 8):
+            for i in range(0, 8):
                 self.data_dictionary[box_id][i] = self.save_results(box_id, self.data_dictionary[box_id][i],
-                                                                    self.file_names[i], flag, num_trials)
+                                                                    self.file_names[i+1], flag, num_trials)
 
     def save_results(self, box_id, results_array, file_ending, flag, num_trials_input):
         # passing in the array to be saved, and updating the time-stamps and settings

@@ -52,6 +52,7 @@ class NewWindow(QtWidgets.QMainWindow):
         self.box_handler_class = BoxHandler(self)
         self.welcome_signal.connect(self.welcome_open)
         self.welcome = QtWidgets.QProgressDialog(parent)
+        self.box_handler_class.boxes_ready_signal.connect(self.welcome_slot)
         self.welcome.setCancelButton(None)
         self.welcome.setRange(0, 0)
         self.my_font = QtGui.QFont()
@@ -77,15 +78,7 @@ class NewWindow(QtWidgets.QMainWindow):
         self.welcome.setModal(True)
         self.welcome.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         self.should_run = True
-        self.run()
-
-    def run(self):
-
-        if self.should_run:
-
-            self.box_handler_class.boxes_ready_signal.connect(self.welcome_slot)
-            self.welcome_signal.emit()
-            self.should_run = False
+        self.welcome_signal.emit()
 
     def welcome_open(self):
         self.welcome.exec()

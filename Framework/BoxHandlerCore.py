@@ -33,6 +33,10 @@ class BoxHandler(QtCore.QThread):
         self.main_window = main_window
         self.id_list_widget = self.main_window.id_list_widget  # type: QtWidgets.QListWidget
 
+        # variables
+        self.box_count = 0
+        self.should_run = True
+
         # this will hold the array of serial handler threads.
         self.thread_instances = []
 
@@ -44,9 +48,6 @@ class BoxHandler(QtCore.QThread):
         # instantiate the results class here and here only.
         self.results = results.BoxResults(self.main_window, self)
 
-        # variables
-        self.box_count = 0
-        self.should_run = True
         self.start()
 
     def run(self):
